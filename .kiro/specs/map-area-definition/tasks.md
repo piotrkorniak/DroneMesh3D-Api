@@ -48,13 +48,13 @@ Implementacja przebiega w etapach: najpierw struktura projektu i modele danych, 
 
   - [ ] 1.5 Utworzenie projektu .NET 10 Web API z MediatR, EF Core i typami przestrzennymi
     - Zainicjalizowanie projektu ASP.NET Core Web API (.NET 10, file-scoped namespaces, nullable reference types, global usings)
-    - Zainstalowanie pakietów: `MediatR`, `FluentValidation.DependencyInjectionExtensions`, `OneOf`, `Npgsql.EntityFrameworkCore.PostgreSQL`, `NetTopologySuite`, `Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite`, `Swashbuckle.AspNetCore`
-    - Konfiguracja Swagger/OpenAPI w Program.cs (`AddEndpointsApiExplorer`, `AddSwaggerGen`, `UseSwagger`, `UseSwaggerUI`)
+    - Zainstalowanie pakietów: `MediatR`, `FluentValidation.DependencyInjectionExtensions`, `OneOf`, `Npgsql.EntityFrameworkCore.PostgreSQL`, `NetTopologySuite`, `Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite`, `Scalar.AspNetCore`
+    - Konfiguracja OpenAPI + Scalar w Program.cs (`AddOpenApi`, `MapOpenApi`, `MapScalarApiReference`)
     - Utworzenie encji `AreaEntity` (sealed class, Id Guid, CreatedAt DateTimeOffset, required Geometry NTS Geometry)
     - Utworzenie `AppDbContext` z primary constructor, konfiguracją PostGIS (`HasPostgresExtension("postgis")`) i typem `geometry(Polygon, 4326)`
     - Utworzenie DTO jako records: `CreateAreaRequest`, `AreaResponse`, `GeoJsonGeometry`, `ErrorResponse`, `ValidationErrorResponse`
     - Utworzenie interfejsów: `IAreaValidator`, `IAreaRepository`
-    - Konfiguracja `Program.cs`: MediatR + ValidationBehavior + FluentValidation + EF Core (Npgsql + UseNetTopologySuite) + CORS + Swagger
+    - Konfiguracja `Program.cs`: MediatR + ValidationBehavior + FluentValidation + EF Core (Npgsql + UseNetTopologySuite) + CORS + OpenAPI/Scalar
     - _Wymagania: 5.1, 6.1, 6.2, 6.3_
 
   - [ ] 1.6 Utworzenie migracji bazy danych dla tabeli Areas
@@ -206,7 +206,7 @@ Implementacja przebiega w etapach: najpierw struktura projektu i modele danych, 
 - [ ] 6. Implementacja komunikacji z API i wysyłki
   - [ ] 6.1 Generowanie klienta HTTP z OpenAPI spec
     - Zainstalowanie `@openapitools/openapi-generator-cli` jako devDependency
-    - Dodanie skryptu npm `api:generate` generującego klienta TypeScript-Angular z `http://localhost:5000/swagger/v1/swagger.json`
+    - Dodanie skryptu npm `api:generate` generującego klienta TypeScript-Angular z `http://localhost:5000/openapi/v1.json`
     - Wygenerowany kod trafia do `src/app/api/` (services, models)
     - Dodanie wygenerowanego katalogu do `.gitignore` lub commitowanie (decyzja: commitujemy dla CI)
     - _Wymagania: 4.4_
@@ -290,7 +290,7 @@ Implementacja przebiega w etapach: najpierw struktura projektu i modele danych, 
 - **MediatR pattern**: kontroler/endpoint jest cienki — logika w handlerach, walidacja w pipeline behavior
 - **Angular 21**: signals zamiast BehaviorSubject dla stanu komponentu, input()/output() zamiast @Input/@Output dekoratora, inject() zamiast constructor injection
 - **.NET 10**: primary constructors dla klas, records dla DTO/commands/queries, Guid.CreateVersion7() dla deterministycznie sortowanych ID, sealed classes
-- **OpenAPI**: backend eksponuje swagger.json, frontend generuje klienta HTTP z `openapi-generator-cli` (typescript-angular). Żadne ręczne pisanie HTTP calls.
+- **OpenAPI**: backend eksponuje `/openapi/v1.json` z UI Scalar (`/scalar/v1`), frontend generuje klienta HTTP z `openapi-generator-cli` (typescript-angular). Żadne ręczne pisanie HTTP calls.
 
 ## Task Dependency Graph
 

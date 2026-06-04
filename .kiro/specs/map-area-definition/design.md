@@ -15,7 +15,7 @@ Architektura opiera się na czystej separacji między frontendem Angular 21 (ren
 - **Docker Compose**: cały stos uruchamiany przez `docker compose up` — kontener Angular (nginx), kontener .NET API, kontener PostgreSQL 18 z PostGIS. Development z hot-reload przez volume mounts.
 - **CI/CD (GitHub Actions)**: pipeline budujący, testujący i publikujący obrazy Docker. Formatowanie kodu weryfikowane na CI.
 - **Formatowanie kodu**: backend — JetBrains CleanupCode (ReSharper CLI), frontend — Prettier + ESLint. Oba egzekwowane na CI jako quality gate.
-- **OpenAPI (Swagger)**: backend eksponuje specyfikację OpenAPI (`/swagger/v1/swagger.json`). Frontend generuje typesafe klienta HTTP za pomocą `openapi-generator-cli` (generator `typescript-angular`). Żadne ręczne pisanie interfejsów HTTP na frontendzie.
+- **OpenAPI (Scalar)**: backend eksponuje specyfikację OpenAPI (`/openapi/v1.json`) z interfejsem Scalar (`/scalar/v1`). Frontend generuje typesafe klienta HTTP za pomocą `openapi-generator-cli` (generator `typescript-angular`). Żadne ręczne pisanie interfejsów HTTP na frontendzie.
 
 ## Architecture
 
@@ -269,7 +269,7 @@ export class AreaService {
 **Generowanie klienta (skrypt npm):**
 ```bash
 # frontend/package.json scripts:
-# "api:generate": "openapi-generator-cli generate -i http://localhost:5000/swagger/v1/swagger.json -g typescript-angular -o src/app/api --additional-properties=useSingleRequestParameter=true"
+# "api:generate": "openapi-generator-cli generate -i http://localhost:5000/openapi/v1.json -g typescript-angular -o src/app/api --additional-properties=useSingleRequestParameter=true"
 ```
 
 ### Komponenty backendowe (.NET 10 + MediatR)
@@ -567,12 +567,8 @@ public sealed class AreaRepository(AppDbContext context) : IAreaRepository
 // Program.cs
 var builder = WebApplication.CreateBuilder(args);
 
-// OpenAPI / Swagger
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new() { Title = "DroneMesh3D API", Version = "v1" });
-});
+// OpenAPI / Scalar
+builder.Services.AddOpenApi();
 
 // MediatR + pipeline behaviors
 builder.Services.AddMediatR(cfg =>
@@ -600,8 +596,8 @@ builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
 
 var app = builder.Build();
 app.UseCors();
-app.UseSwagger();
-app.UseSwaggerUI();
+app.MapOpenApi();
+app.MapScalarApiReference();
 app.MapAreasEndpoints();
 app.Run();
 ```
