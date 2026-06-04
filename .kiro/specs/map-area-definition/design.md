@@ -14,7 +14,7 @@ Architektura opiera się na czystej separacji między frontendem Angular 21 (ren
 - **EF Core 10** z NetTopologySuite i Npgsql dla PostgreSQL + PostGIS
 - **Docker Compose**: cały stos uruchamiany przez `docker compose up` — kontener Angular (nginx), kontener .NET API, kontener PostgreSQL 18 z PostGIS. Development z hot-reload przez volume mounts.
 - **CI/CD (GitHub Actions)**: pipeline budujący, testujący i publikujący obrazy Docker. Formatowanie kodu weryfikowane na CI (`dotnet jb cleanupcode DroneMesh3D.slnx`).
-- **Formatowanie kodu**: backend — JetBrains CleanupCode (ReSharper CLI, dotnet tool), frontend — Prettier + ESLint. Oba egzekwowane na CI jako quality gate.
+- **Formatowanie kodu**: JetBrains CleanupCode (ReSharper CLI, dotnet tool) formatuje cały repo (C#, TypeScript, HTML, SCSS, JSON). ESLint dla lintingu TypeScript. Egzekwowane na CI jako quality gate.
 - **OpenAPI (Scalar)**: backend eksponuje specyfikację OpenAPI (`/openapi/v1.json`) z interfejsem Scalar (`/scalar/v1`). Frontend generuje typesafe klienta HTTP za pomocą `openapi-generator-cli` (generator `typescript-angular`). Żadne ręczne pisanie interfejsów HTTP na frontendzie.
 - **Struktura projektu**: rozwiązanie `DroneMesh3D.slnx` (SLNX format) z folderami: Backend (Api+Core), Frontend (Web), Tests (Api.Tests+Core.Tests). Api zawiera warstwę HTTP (endpointy, DTOs, MediatR pipeline). Core zawiera logikę biznesową, encje, dane (EF Core DbContext), interfejsy i modele.
 
@@ -984,7 +984,7 @@ jobs:
           dotnet jb cleanupcode DroneMesh3D.slnx --profile="Built-in: Reformat Code" --no-build
           git diff --exit-code -- Api/ Core/ || (echo "::error::Code is not formatted. Run 'dotnet jb cleanupcode DroneMesh3D.slnx' locally." && exit 1)
 
-      # Web - Prettier + ESLint
+      # Web - ESLint
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -994,10 +994,6 @@ jobs:
 
       - name: Install Web deps
         run: npm ci
-        working-directory: Web
-
-      - name: Check Prettier formatting
-        run: npx prettier --check .
         working-directory: Web
 
       - name: Run ESLint
@@ -1069,7 +1065,9 @@ jobs:
 
 ### Formatowanie kodu — konfiguracja lokalna
 
-**Backend (.NET — CleanupCode):**
+**Cały repo (JetBrains CleanupCode):**
+
+CleanupCode formatuje C#, TypeScript, HTML, SCSS i JSON w całym repozytorium.
 
 ```xml
 <!-- .editorconfig (root) -->
@@ -1095,23 +1093,9 @@ dotnet tool restore
 dotnet jb cleanupcode DroneMesh3D.slnx --profile="Built-in: Reformat Code"
 ```
 
-**Frontend (Prettier + ESLint):**
-
-```json
-// Web/.prettierrc
-{
-  "semi": true,
-  "singleQuote": true,
-  "trailingComma": "es5",
-  "printWidth": 100,
-  "tabWidth": 2
-}
-```
-
-Uruchomienie lokalne:
+**Linting (ESLint — tylko Web):**
 ```bash
 cd Web
-npx prettier --write .
 npx eslint . --fix
 ```
 

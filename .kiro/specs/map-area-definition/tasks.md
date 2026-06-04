@@ -26,7 +26,7 @@ Implementacja przebiega w etapach: najpierw struktura projektu i modele danych, 
 
   - [x] 1.2 Konfiguracja CI/CD (GitHub Actions)
     - Utworzenie `.github/workflows/ci.yml` z trzema jobami: format-check, test, build
-    - Job `format-check`: CleanupCode z `DroneMesh3D.slnx` (dry-run + git diff --exit-code -- Api/ Core/) dla backendu, Prettier --check + ESLint dla Web/
+    - Job `format-check`: CleanupCode z `DroneMesh3D.slnx` (formatuje cały repo — C#, TS, HTML, SCSS) + ESLint dla Web/
     - Job `test`: uruchomienie testów .NET (`dotnet test DroneMesh3D.slnx`) z PostgreSQL/PostGIS service container, testów Angular (ChromeHeadless) w Web/
     - Job `build`: budowanie obrazów Docker (`./Api` dla api, `./Web` dla web)
     - Trigger: pull requesty do main
@@ -34,9 +34,9 @@ Implementacja przebiega w etapach: najpierw struktura projektu i modele danych, 
 
   - [x] 1.3 Konfiguracja formatowania kodu
     - Backend: zainstalowanie `JetBrains.ReSharper.GlobalTools` jako dotnet tool (`.config/dotnet-tools.json`), utworzenie `.editorconfig` z regułami C# (file-scoped namespaces, primary constructors, sortowanie usings)
-    - Web: zainstalowanie Prettier i ESLint, utworzenie `.prettierrc` i `eslint.config.js` (flat config Angular 21)
-    - Dodanie skryptów npm: `format`, `format:check`, `lint`
-    - Weryfikacja: `dotnet jb cleanupcode DroneMesh3D.slnx` i `npx prettier --check .` przechodzą czysto
+    - Web: zainstalowanie ESLint, utworzenie `eslint.config.js` (flat config Angular 21)
+    - Dodanie skryptu npm: `lint`
+    - Weryfikacja: `dotnet jb cleanupcode DroneMesh3D.slnx` przechodzi czysto
     - _Wymagania: infrastruktura_
 
   - [x] 1.4 Utworzenie projektu Angular 21 z zależnościami OpenLayers
