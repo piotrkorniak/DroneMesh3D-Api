@@ -27,12 +27,10 @@ Desktop.ini
 !.vscode/extensions.json
 
 # ===========================
-# .NET / API
+# .NET (Api, Core, Tests)
 # ===========================
-API/bin/
-API/obj/
-API/**/bin/
-API/**/obj/
+**/bin/
+**/obj/
 *.user
 *.suo
 *.userosscache
