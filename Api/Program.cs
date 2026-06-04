@@ -1,6 +1,6 @@
 using DroneMesh3D.Api.Behaviors;
-using DroneMesh3D.Api.Middleware;
 using DroneMesh3D.Api.Endpoints;
+using DroneMesh3D.Api.Middleware;
 using DroneMesh3D.Core.Data;
 using DroneMesh3D.Core.Interfaces;
 using DroneMesh3D.Core.Repositories;

@@ -4,8 +4,7 @@
       class="toolbar-btn draw-btn"
       [disabled]="isDrawing()"
       (click)="draw.emit()"
-      aria-label="Draw polygon"
-    >
+      aria-label="Draw polygon">
       Draw
     </button>
 
@@ -13,8 +12,7 @@
       class="toolbar-btn clear-btn"
       [disabled]="!hasPolygon() || isSubmitting()"
       (click)="clear.emit()"
-      aria-label="Clear polygon"
-    >
+      aria-label="Clear polygon">
       Clear
     </button>
 
@@ -22,23 +20,22 @@
       class="toolbar-btn submit-btn"
       [disabled]="!isValid() || isSubmitting() || !hasPolygon()"
       (click)="submit.emit()"
-      aria-label="Submit area"
-    >
+      aria-label="Submit area">
       @if (isSubmitting()) {
-        Submitting...
+      Submitting...
       } @else {
-        Submit
+      Submit
       }
     </button>
   </div>
 
   @if (validationErrors().length > 0) {
-    <div class="validation-errors" role="alert" aria-live="polite">
-      <ul>
-        @for (error of validationErrors(); track error) {
-          <li>{{ error }}</li>
-        }
-      </ul>
-    </div>
+  <div class="validation-errors" role="alert" aria-live="polite">
+    <ul>
+      @for (error of validationErrors(); track error) {
+      <li>{{ error }}</li>
+      }
+    </ul>
+  </div>
   }
 </div>

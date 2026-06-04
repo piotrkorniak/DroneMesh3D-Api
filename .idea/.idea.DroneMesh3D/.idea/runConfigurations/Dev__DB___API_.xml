@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Dev (DB + API)" type="CompoundRunConfigurationType">
+    <toRun name="Docker Compose: DB Only" type="docker-deploy" />
+    <toRun name="API (.NET)" type="DotNetProject" />
+    <method v="2" />
+  </configuration>
+</component>

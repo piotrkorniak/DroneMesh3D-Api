@@ -1,10 +1,10 @@
-namespace DroneMesh3D.Api.Handlers;
-
 using DroneMesh3D.Api.DTOs;
 using DroneMesh3D.Api.Queries;
 using DroneMesh3D.Core;
 using DroneMesh3D.Core.Interfaces;
 using MediatR;
+
+namespace DroneMesh3D.Api.Handlers;
 
 public sealed class GetAreaQueryHandler(IAreaRepository areaRepository)
     : IRequestHandler<GetAreaQuery, AreaResponse?>

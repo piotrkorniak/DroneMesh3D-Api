@@ -10,7 +10,10 @@ Desktop.ini
 # ===========================
 # JetBrains (Rider, WebStorm)
 # ===========================
-.idea/
+.idea/*
+!.idea/.idea.DroneMesh3D/
+.idea/.idea.DroneMesh3D/.idea/*
+!.idea/.idea.DroneMesh3D/.idea/runConfigurations/
 *.sln.iml
 *.iml
 *.ipr

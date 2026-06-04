@@ -1,17 +1,13 @@
-namespace DroneMesh3D.Api.Tests.Handlers;
-
 using DroneMesh3D.Api.Commands;
 using DroneMesh3D.Api.Handlers;
 using DroneMesh3D.Core.Entities;
 using DroneMesh3D.Core.Interfaces;
 using NSubstitute;
 
+namespace DroneMesh3D.Api.Tests.Handlers;
+
 public sealed class CreateAreaCommandHandlerTests
 {
-    private readonly IAreaValidator _validator = Substitute.For<IAreaValidator>();
-    private readonly IAreaRepository _repository = Substitute.For<IAreaRepository>();
-    private readonly CreateAreaCommandHandler _sut;
-
     // A valid closed polygon ring
     private static readonly double[][] ValidRing =
     [
@@ -21,6 +17,10 @@ public sealed class CreateAreaCommandHandlerTests
         [21.0000, 52.0018],
         [21.0000, 52.0000]
     ];
+
+    private readonly IAreaRepository _repository = Substitute.For<IAreaRepository>();
+    private readonly CreateAreaCommandHandler _sut;
+    private readonly IAreaValidator _validator = Substitute.For<IAreaValidator>();
 
     public CreateAreaCommandHandlerTests()
     {

@@ -1,5 +1,3 @@
-namespace DroneMesh3D.Api.Tests.Integration;
-
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -11,11 +9,10 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
+namespace DroneMesh3D.Api.Tests.Integration;
+
 public sealed class AreasEndpointTests : IClassFixture<AreasEndpointTests.AreasApiFactory>, IDisposable
 {
-    private readonly HttpClient _client;
-    private readonly AreasApiFactory _factory;
-
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
@@ -33,11 +30,16 @@ public sealed class AreasEndpointTests : IClassFixture<AreasEndpointTests.AreasA
         ]
     ];
 
+    private readonly HttpClient _client;
+    private readonly AreasApiFactory _factory;
+
     public AreasEndpointTests(AreasApiFactory factory)
     {
         _factory = factory;
         _client = factory.CreateClient();
     }
+
+    public void Dispose() => _client.Dispose();
 
     [Fact]
     public async Task Post_ValidPolygon_Returns201WithAreaResponse()
@@ -139,14 +141,9 @@ public sealed class AreasEndpointTests : IClassFixture<AreasEndpointTests.AreasA
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
-    public void Dispose()
-    {
-        _client.Dispose();
-    }
-
     /// <summary>
-    /// Custom WebApplicationFactory that replaces the PostgreSQL/PostGIS database
-    /// with an in-memory SQLite database using NetTopologySuite for spatial support.
+    ///     Custom WebApplicationFactory that replaces the PostgreSQL/PostGIS database
+    ///     with an in-memory SQLite database using NetTopologySuite for spatial support.
     /// </summary>
     public sealed class AreasApiFactory : WebApplicationFactory<Program>
     {

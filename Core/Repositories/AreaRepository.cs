@@ -1,8 +1,8 @@
-namespace DroneMesh3D.Core.Repositories;
-
 using DroneMesh3D.Core.Data;
 using DroneMesh3D.Core.Entities;
 using DroneMesh3D.Core.Interfaces;
+
+namespace DroneMesh3D.Core.Repositories;
 
 public sealed class AreaRepository(AppDbContext context) : IAreaRepository
 {

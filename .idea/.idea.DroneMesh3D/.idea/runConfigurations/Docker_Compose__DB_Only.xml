@@ -1,0 +1,19 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Docker Compose: DB Only" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+    <deployment type="docker-compose.yml">
+      <settings>
+        <option name="composePaths">
+          <list>
+            <option value="$PROJECT_DIR$/docker-compose.yml" />
+          </list>
+        </option>
+        <option name="services">
+          <list>
+            <option value="db" />
+          </list>
+        </option>
+      </settings>
+    </deployment>
+    <method v="2" />
+  </configuration>
+</component>

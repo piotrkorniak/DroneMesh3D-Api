@@ -1,13 +1,13 @@
-namespace DroneMesh3D.Core.Tests.Validation;
-
 using DroneMesh3D.Core.Validation;
 using FsCheck;
 using FsCheck.Fluent;
 using FsCheck.Xunit;
 
+namespace DroneMesh3D.Core.Tests.Validation;
+
 /// <summary>
-/// Property-based tests for GeoJsonValidator.IsValidPolygon.
-/// **Validates: Requirements 5.2, 5.3**
+///     Property-based tests for GeoJsonValidator.IsValidPolygon.
+///     **Validates: Requirements 5.2, 5.3**
 /// </summary>
 public sealed class GeoJsonValidatorPropertyTests
 {
@@ -23,50 +23,42 @@ public sealed class GeoJsonValidatorPropertyTests
     ];
 
     /// <summary>
-    /// Property 1: Any type string that is not exactly "Polygon" should be rejected.
+    ///     Property 1: Any type string that is not exactly "Polygon" should be rejected.
     /// </summary>
     [Property(Arbitrary = [typeof(InvalidTypeArbitraries)])]
     public bool InvalidType_AlwaysReturnsFalse(string? type)
     {
-        var validCoordinates = new double[][]?[] { ValidRing };
+        var validCoordinates = new[] { ValidRing };
         return !GeoJsonValidator.IsValidPolygon(type, validCoordinates);
     }
 
     /// <summary>
-    /// Property 2: Null or empty coordinates arrays should be rejected.
+    ///     Property 2: Null or empty coordinates arrays should be rejected.
     /// </summary>
     [Property(Arbitrary = [typeof(NullOrEmptyCoordinatesArbitraries)])]
-    public bool NullOrEmptyCoordinates_AlwaysReturnsFalse(double[][]?[]? coordinates)
-    {
-        return !GeoJsonValidator.IsValidPolygon(ValidType, coordinates);
-    }
+    public bool NullOrEmptyCoordinates_AlwaysReturnsFalse(double[][]?[]? coordinates) =>
+        !GeoJsonValidator.IsValidPolygon(ValidType, coordinates);
 
     /// <summary>
-    /// Property 3: Coordinates containing null or empty rings should be rejected.
+    ///     Property 3: Coordinates containing null or empty rings should be rejected.
     /// </summary>
     [Property(Arbitrary = [typeof(BadRingsArbitraries)])]
-    public bool CoordinatesWithNullOrEmptyRings_AlwaysReturnsFalse(double[][]?[] coordinates)
-    {
-        return !GeoJsonValidator.IsValidPolygon(ValidType, coordinates);
-    }
+    public bool CoordinatesWithNullOrEmptyRings_AlwaysReturnsFalse(double[][]?[] coordinates) =>
+        !GeoJsonValidator.IsValidPolygon(ValidType, coordinates);
 
     /// <summary>
-    /// Property 4: Rings containing points with fewer than 2 coordinate values should be rejected.
+    ///     Property 4: Rings containing points with fewer than 2 coordinate values should be rejected.
     /// </summary>
     [Property(Arbitrary = [typeof(ShortPointsArbitraries)])]
-    public bool PointsWithLessThanTwoValues_AlwaysReturnsFalse(double[][]?[] coordinates)
-    {
-        return !GeoJsonValidator.IsValidPolygon(ValidType, coordinates);
-    }
+    public bool PointsWithLessThanTwoValues_AlwaysReturnsFalse(double[][]?[] coordinates) =>
+        !GeoJsonValidator.IsValidPolygon(ValidType, coordinates);
 
     /// <summary>
-    /// Property 5: Valid structure (type="Polygon", non-empty rings, all points ≥2 values) should be accepted.
+    ///     Property 5: Valid structure (type="Polygon", non-empty rings, all points ≥2 values) should be accepted.
     /// </summary>
     [Property(Arbitrary = [typeof(ValidCoordinatesArbitraries)])]
-    public bool ValidStructure_AlwaysReturnsTrue(double[][]?[] coordinates)
-    {
-        return GeoJsonValidator.IsValidPolygon(ValidType, coordinates);
-    }
+    public bool ValidStructure_AlwaysReturnsTrue(double[][]?[] coordinates) =>
+        GeoJsonValidator.IsValidPolygon(ValidType, coordinates);
 
     #region Custom Arbitrary Classes
 
@@ -92,7 +84,7 @@ public sealed class GeoJsonValidatorPropertyTests
     {
         public static Arbitrary<double[][]?[]?> NullableArray()
         {
-            var gen = Gen.Elements<double[][]?[]?>(null, Array.Empty<double[][]?>());
+            var gen = Gen.Elements(null, Array.Empty<double[][]?>());
             return gen.ToArbitrary();
         }
     }
@@ -102,7 +94,7 @@ public sealed class GeoJsonValidatorPropertyTests
         public static Arbitrary<double[][]?[]> Array()
         {
             // Generate coordinates where at least one ring is null or empty
-            var badRing = Gen.Elements<double[][]?>(null, System.Array.Empty<double[]>());
+            var badRing = Gen.Elements(null, System.Array.Empty<double[]>());
 
             // 1-3 total rings with at least one bad ring at a random position
             var gen = Gen.Choose(1, 3).SelectMany(ringCount =>
@@ -131,12 +123,12 @@ public sealed class GeoJsonValidatorPropertyTests
 
             // Normal points with 2 coordinates
             var normalPoint = Gen.Choose(-180, 180).Two()
-                .Select(t => new[] { (double)t.Item1, (double)t.Item2 });
+                .Select(t => new[] { t.Item1, (double)t.Item2 });
 
             // Build a ring where at least one point is "short"
             var ringWithShortPoint = Gen.Choose(2, 5).SelectMany(normalCount =>
                 shortPoint.SelectMany(sp =>
-                    Gen.ArrayOf(normalPoint, normalCount).SelectMany(normalPoints =>
+                    normalPoint.ArrayOf(normalCount).SelectMany(normalPoints =>
                         Gen.Choose(0, normalCount).Select(insertIdx =>
                         {
                             var allPoints = normalPoints.ToList();
@@ -144,7 +136,7 @@ public sealed class GeoJsonValidatorPropertyTests
                             return allPoints.ToArray();
                         }))));
 
-            var gen = ringWithShortPoint.Select(ring => new double[][]?[] { ring });
+            var gen = ringWithShortPoint.Select(ring => new[] { ring });
             return gen.ToArbitrary();
         }
     }
@@ -155,19 +147,19 @@ public sealed class GeoJsonValidatorPropertyTests
         {
             // Points with at least 2 coordinate values (some with optional altitude)
             var point2d = Gen.Choose(-180, 180).Two()
-                .Select(t => new[] { (double)t.Item1, (double)t.Item2 });
+                .Select(t => new[] { t.Item1, (double)t.Item2 });
             var point3d = Gen.Choose(-180, 180).Three()
-                .Select(t => new[] { (double)t.Item1, (double)t.Item2, (double)t.Item3 });
+                .Select(t => new[] { t.Item1, t.Item2, (double)t.Item3 });
             var validPoint = Gen.OneOf(point2d, point3d);
 
             // A valid ring: 3-8 points, each with ≥2 values
             var validRing = Gen.Choose(3, 8).SelectMany(count =>
-                Gen.ArrayOf(validPoint, count));
+                validPoint.ArrayOf(count));
 
             // 1-2 rings
             var gen = Gen.Choose(1, 2).SelectMany(ringCount =>
-                Gen.ArrayOf(validRing, ringCount)
-                    .Select(rings => rings.Cast<double[][]?>().ToArray()));
+                validRing.ArrayOf(ringCount)
+                    .Select(rings => rings.ToArray()));
 
             return gen.ToArbitrary();
         }

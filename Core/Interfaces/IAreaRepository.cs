@@ -1,6 +1,6 @@
-namespace DroneMesh3D.Core.Interfaces;
-
 using DroneMesh3D.Core.Entities;
+
+namespace DroneMesh3D.Core.Interfaces;
 
 public interface IAreaRepository
 {

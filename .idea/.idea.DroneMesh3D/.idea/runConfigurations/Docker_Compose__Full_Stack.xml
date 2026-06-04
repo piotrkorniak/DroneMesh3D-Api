@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Docker Compose: Full Stack" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+    <deployment type="docker-compose.yml">
+      <settings>
+        <option name="composePaths">
+          <list>
+            <option value="$PROJECT_DIR$/docker-compose.yml" />
+            <option value="$PROJECT_DIR$/docker-compose.override.yml" />
+          </list>
+        </option>
+        <option name="commandLine" value="--build" />
+      </settings>
+    </deployment>
+    <method v="2" />
+  </configuration>
+</component>

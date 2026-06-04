@@ -3,9 +3,9 @@ using DroneMesh3D.Core.Interfaces;
 namespace DroneMesh3D.Core.Validation;
 
 /// <summary>
-/// Validates geometric properties of a polygon ring.
-/// Rules mirror the frontend PolygonValidatorService:
-/// ≥3 distinct vertices, closure, no self-intersections, area in [100 m², 50 000 m²].
+///     Validates geometric properties of a polygon ring.
+///     Rules mirror the frontend PolygonValidatorService:
+///     ≥3 distinct vertices, closure, no self-intersections, area in [100 m², 50 000 m²].
 /// </summary>
 public sealed class AreaValidator : IAreaValidator
 {
@@ -59,16 +59,14 @@ public sealed class AreaValidator : IAreaValidator
         var edgeCount = n - 1;
 
         for (var i = 0; i < edgeCount; i++)
+        for (var j = i + 2; j < edgeCount; j++)
         {
-            for (var j = i + 2; j < edgeCount; j++)
-            {
-                // Skip adjacent edges (first and last edge are adjacent in a closed polygon)
-                if (i == 0 && j == edgeCount - 1 && IsClosed(ring))
-                    continue;
+            // Skip adjacent edges (first and last edge are adjacent in a closed polygon)
+            if (i == 0 && j == edgeCount - 1 && IsClosed(ring))
+                continue;
 
-                if (SegmentsIntersect(ring[i], ring[i + 1], ring[j], ring[j + 1]))
-                    return true;
-            }
+            if (SegmentsIntersect(ring[i], ring[i + 1], ring[j], ring[j + 1]))
+                return true;
         }
 
         return false;
@@ -110,7 +108,7 @@ public sealed class AreaValidator : IAreaValidator
     private static double ToRadians(double degrees) => degrees * Math.PI / 180.0;
 
     /// <summary>
-    /// Checks if two line segments (p1-p2) and (p3-p4) properly intersect.
+    ///     Checks if two line segments (p1-p2) and (p3-p4) properly intersect.
     /// </summary>
     private static bool SegmentsIntersect(double[] p1, double[] p2, double[] p3, double[] p4)
     {
@@ -121,9 +119,7 @@ public sealed class AreaValidator : IAreaValidator
 
         if (((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) &&
             ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0)))
-        {
             return true;
-        }
 
         // Check collinear cases
         if (d1 == 0 && OnSegment(p3, p4, p1)) return true;
@@ -135,13 +131,13 @@ public sealed class AreaValidator : IAreaValidator
     }
 
     /// <summary>
-    /// Computes the cross product of vectors (b - a) and (c - a).
+    ///     Computes the cross product of vectors (b - a) and (c - a).
     /// </summary>
     private static double CrossProduct(double[] a, double[] b, double[] c) =>
         (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
 
     /// <summary>
-    /// Checks if point p lies on segment (a, b), assuming collinearity.
+    ///     Checks if point p lies on segment (a, b), assuming collinearity.
     /// </summary>
     private static bool OnSegment(double[] a, double[] b, double[] p) =>
         Math.Min(a[0], b[0]) <= p[0] &&

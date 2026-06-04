@@ -1,9 +1,9 @@
-namespace DroneMesh3D.Api.Endpoints;
-
 using DroneMesh3D.Api.Commands;
 using DroneMesh3D.Api.DTOs;
 using DroneMesh3D.Api.Queries;
 using MediatR;
+
+namespace DroneMesh3D.Api.Endpoints;
 
 public static class AreasEndpoint
 {

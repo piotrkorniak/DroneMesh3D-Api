@@ -1,7 +1,7 @@
-namespace DroneMesh3D.Core.Data;
-
-using Microsoft.EntityFrameworkCore;
 using DroneMesh3D.Core.Entities;
+using Microsoft.EntityFrameworkCore;
+
+namespace DroneMesh3D.Core.Data;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
@@ -11,10 +11,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     {
         var isNpgsql = Database.ProviderName == "Npgsql.EntityFrameworkCore.PostgreSQL";
 
-        if (isNpgsql)
-        {
-            modelBuilder.HasPostgresExtension("postgis");
-        }
+        if (isNpgsql) modelBuilder.HasPostgresExtension("postgis");
 
         modelBuilder.Entity<AreaEntity>(entity =>
         {

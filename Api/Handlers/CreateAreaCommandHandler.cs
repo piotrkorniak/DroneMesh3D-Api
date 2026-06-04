@@ -1,5 +1,3 @@
-namespace DroneMesh3D.Api.Handlers;
-
 using DroneMesh3D.Api.Commands;
 using DroneMesh3D.Api.DTOs;
 using DroneMesh3D.Core;
@@ -9,6 +7,8 @@ using DroneMesh3D.Core.Models;
 using DroneMesh3D.Core.Validation;
 using MediatR;
 using OneOf;
+
+namespace DroneMesh3D.Api.Handlers;
 
 public sealed class CreateAreaCommandHandler(
     IAreaValidator areaValidator,

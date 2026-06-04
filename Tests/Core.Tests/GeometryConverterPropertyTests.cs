@@ -1,31 +1,28 @@
+using DroneMesh3D.Core.Entities;
+using DroneMesh3D.Core.Tests.Validation;
+using FsCheck.Xunit;
+
 namespace DroneMesh3D.Core.Tests;
 
-using DroneMesh3D.Core.Tests.Validation;
-using FsCheck;
-using FsCheck.Xunit;
-using NetTopologySuite.Geometries;
-
 /// <summary>
-/// Property 8: Round-trip persystencji obszaru.
-/// **Validates: Requirements 6.1, 6.3**
-///
-/// Verifies that the GeometryConverter round-trip preserves coordinates:
-/// 1. Generate valid polygon ring (closed, ≥3 vertices, no self-intersections)
-/// 2. Convert to NTS Polygon via GeometryConverter.ToPolygon()
-/// 3. Convert back to GeoJSON via GeometryConverter.ToGeoJson()
-/// 4. Verify: coordinates match original, resulting polygon has valid SRID, geometry is non-empty
-///
-/// This validates the core persistence contract: what goes in must come out identical.
-/// The NTS Polygon is exactly what gets persisted to PostGIS (Requirement 6.1),
-/// and the round-trip ensures the stored geometry can be faithfully reconstructed (Requirement 6.3).
+///     Property 8: Round-trip persystencji obszaru.
+///     **Validates: Requirements 6.1, 6.3**
+///     Verifies that the GeometryConverter round-trip preserves coordinates:
+///     1. Generate valid polygon ring (closed, ≥3 vertices, no self-intersections)
+///     2. Convert to NTS Polygon via GeometryConverter.ToPolygon()
+///     3. Convert back to GeoJSON via GeometryConverter.ToGeoJson()
+///     4. Verify: coordinates match original, resulting polygon has valid SRID, geometry is non-empty
+///     This validates the core persistence contract: what goes in must come out identical.
+///     The NTS Polygon is exactly what gets persisted to PostGIS (Requirement 6.1),
+///     and the round-trip ensures the stored geometry can be faithfully reconstructed (Requirement 6.3).
 /// </summary>
 public sealed class GeometryConverterPropertyTests
 {
     /// <summary>
-    /// **Validates: Requirements 6.1, 6.3**
-    /// Property: Converting a valid ring to NTS Polygon and back to GeoJSON preserves all coordinates
-    /// in their original order. This proves that persistence (which stores the NTS Polygon) does not
-    /// lose or corrupt coordinate data.
+    ///     **Validates: Requirements 6.1, 6.3**
+    ///     Property: Converting a valid ring to NTS Polygon and back to GeoJSON preserves all coordinates
+    ///     in their original order. This proves that persistence (which stores the NTS Polygon) does not
+    ///     lose or corrupt coordinate data.
     /// </summary>
     [Property(MaxTest = 200, Arbitrary = [typeof(ValidRingArbitrary)])]
     public bool RoundTrip_PreservesCoordinates(double[][] ring)
@@ -55,9 +52,9 @@ public sealed class GeometryConverterPropertyTests
     }
 
     /// <summary>
-    /// **Validates: Requirements 6.1, 6.3**
-    /// Property: Converting a valid ring to NTS Polygon produces a geometry with SRID 4326 (WGS 84),
-    /// which is required for PostGIS spatial storage. The polygon must be non-empty and valid.
+    ///     **Validates: Requirements 6.1, 6.3**
+    ///     Property: Converting a valid ring to NTS Polygon produces a geometry with SRID 4326 (WGS 84),
+    ///     which is required for PostGIS spatial storage. The polygon must be non-empty and valid.
     /// </summary>
     [Property(MaxTest = 200, Arbitrary = [typeof(ValidRingArbitrary)])]
     public bool ToPolygon_ProducesValidSpatialGeometry(double[][] ring)
@@ -80,10 +77,10 @@ public sealed class GeometryConverterPropertyTests
     }
 
     /// <summary>
-    /// **Validates: Requirements 6.1, 6.3**
-    /// Property: The GeoJSON output always has type "Polygon" and non-empty coordinates,
-    /// ensuring the stored entity can always be reconstructed into a valid API response
-    /// with unique ID and timestamp context.
+    ///     **Validates: Requirements 6.1, 6.3**
+    ///     Property: The GeoJSON output always has type "Polygon" and non-empty coordinates,
+    ///     ensuring the stored entity can always be reconstructed into a valid API response
+    ///     with unique ID and timestamp context.
     /// </summary>
     [Property(MaxTest = 200, Arbitrary = [typeof(ValidRingArbitrary)])]
     public bool ToGeoJson_ProducesValidGeoJsonStructure(double[][] ring)
@@ -102,25 +99,24 @@ public sealed class GeometryConverterPropertyTests
 
         // Each coordinate must have exactly 2 elements (longitude, latitude)
         foreach (var coord in geoJson.Coordinates[0])
-        {
-            if (coord.Length != 2) return false;
-        }
+            if (coord.Length != 2)
+                return false;
 
         return true;
     }
 
     /// <summary>
-    /// **Validates: Requirements 6.1, 6.3**
-    /// Property: Simulated persistence round-trip — creating an AreaEntity with the converted
-    /// polygon, then reading it back via GeometryConverter, produces identical coordinates.
-    /// This simulates the full save/load cycle without requiring a database.
+    ///     **Validates: Requirements 6.1, 6.3**
+    ///     Property: Simulated persistence round-trip — creating an AreaEntity with the converted
+    ///     polygon, then reading it back via GeometryConverter, produces identical coordinates.
+    ///     This simulates the full save/load cycle without requiring a database.
     /// </summary>
     [Property(MaxTest = 200, Arbitrary = [typeof(ValidRingArbitrary)])]
     public bool SimulatedPersistence_IdAndTimestampAreValid(double[][] ring)
     {
         // Simulate what CreateAreaCommandHandler does
         var polygon = GeometryConverter.ToPolygon(ring);
-        var entity = new Entities.AreaEntity
+        var entity = new AreaEntity
         {
             Id = Guid.NewGuid(),
             CreatedAt = DateTimeOffset.UtcNow,

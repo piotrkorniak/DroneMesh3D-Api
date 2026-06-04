@@ -1,9 +1,9 @@
 namespace DroneMesh3D.Core.Validation;
 
 /// <summary>
-/// Validates the structural correctness of GeoJSON Polygon geometry.
-/// Checks: type field equals "Polygon", coordinates are present and non-empty,
-/// at least one ring exists, and the outer ring contains coordinate pairs.
+///     Validates the structural correctness of GeoJSON Polygon geometry.
+///     Checks: type field equals "Polygon", coordinates are present and non-empty,
+///     at least one ring exists, and the outer ring contains coordinate pairs.
 /// </summary>
 public static class GeoJsonValidator
 {
@@ -11,7 +11,7 @@ public static class GeoJsonValidator
     private const int MinCoordinatesPerPoint = 2;
 
     /// <summary>
-    /// Validates that the given type and coordinates represent a structurally valid GeoJSON Polygon.
+    ///     Validates that the given type and coordinates represent a structurally valid GeoJSON Polygon.
     /// </summary>
     /// <param name="type">The GeoJSON geometry type (must be "Polygon").</param>
     /// <param name="coordinates">The coordinate rings array [ring[vertex[lng, lat]]].</param>
@@ -50,10 +50,8 @@ public static class GeoJsonValidator
                 return false;
 
             foreach (var point in ring)
-            {
                 if (point is null || point.Length < MinCoordinatesPerPoint)
                     return false;
-            }
         }
 
         return true;

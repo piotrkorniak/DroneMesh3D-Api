@@ -1,6 +1,6 @@
-namespace DroneMesh3D.Core.Tests.Validation;
-
 using DroneMesh3D.Core.Validation;
+
+namespace DroneMesh3D.Core.Tests.Validation;
 
 public sealed class GeoJsonValidatorTests
 {

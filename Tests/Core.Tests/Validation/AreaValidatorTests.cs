@@ -1,11 +1,9 @@
-namespace DroneMesh3D.Core.Tests.Validation;
-
 using DroneMesh3D.Core.Validation;
+
+namespace DroneMesh3D.Core.Tests.Validation;
 
 public sealed class AreaValidatorTests
 {
-    private readonly AreaValidator _sut = new();
-
     // A valid closed polygon in Warsaw area (~200m x 200m, well within limits)
     private static readonly double[][] ValidPolygon =
     [
@@ -15,6 +13,8 @@ public sealed class AreaValidatorTests
         [21.0000, 52.0018],
         [21.0000, 52.0000]
     ];
+
+    private readonly AreaValidator _sut = new();
 
     [Fact]
     public void Validate_ValidPolygon_ReturnsIsValidTrue()

@@ -1,6 +1,6 @@
-namespace DroneMesh3D.Core.Entities;
-
 using NetTopologySuite.Geometries;
+
+namespace DroneMesh3D.Core.Entities;
 
 public sealed class AreaEntity
 {
