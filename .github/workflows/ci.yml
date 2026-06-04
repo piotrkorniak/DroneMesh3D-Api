@@ -52,7 +52,7 @@ jobs:
     needs: format-check
     services:
       postgres:
-        image: postgis/postgis:18-3.5
+        image: postgis/postgis:17-3.5
         env:
           POSTGRES_DB: dronemesh3d_test
           POSTGRES_PASSWORD: YourStr0ngP@ssword

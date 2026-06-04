@@ -27,7 +27,7 @@ services:
       - dronemesh
 
   db:
-    image: postgis/postgis:18-3.5
+    image: postgis/postgis:17-3.5
     environment:
       - POSTGRES_DB=dronemesh3d
       - POSTGRES_PASSWORD=YourStr0ngP@ssword
