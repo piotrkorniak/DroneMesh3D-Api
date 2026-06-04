@@ -947,8 +947,6 @@ Pipeline uruchamiany przy każdym pushu i pull requeście. Składa się z trzech
 name: CI
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
 

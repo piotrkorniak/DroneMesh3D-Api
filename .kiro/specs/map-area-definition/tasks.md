@@ -29,7 +29,7 @@ Implementacja przebiega w etapach: najpierw struktura projektu i modele danych, 
     - Job `format-check`: CleanupCode (dry-run + git diff --exit-code) dla backendu, Prettier --check + ESLint dla frontendu
     - Job `test`: uruchomienie testów .NET (dotnet test) z PostgreSQL/PostGIS service container, testów Angular (ChromeHeadless)
     - Job `build`: budowanie obrazów Docker (api + frontend)
-    - Trigger: push do main + pull requesty do main
+    - Trigger: pull requesty do main
     - _Wymagania: infrastruktura_
 
   - [ ] 1.3 Konfiguracja formatowania kodu
