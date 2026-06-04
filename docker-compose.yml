@@ -1,0 +1,51 @@
+# docker-compose.yml
+services:
+  web:
+    build:
+      context: ./Web
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+    depends_on:
+      - api
+    networks:
+      - dronemesh
+
+  api:
+    build:
+      context: .
+      dockerfile: Api/Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Default=Host=db;Database=dronemesh3d;Username=postgres;Password=YourStr0ngP@ssword
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - dronemesh
+
+  db:
+    image: postgis/postgis:17-3.5
+    environment:
+      - POSTGRES_DB=dronemesh3d
+      - POSTGRES_PASSWORD=YourStr0ngP@ssword
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dronemesh
+
+volumes:
+  pgdata:
+
+networks:
+  dronemesh:
+    driver: bridge

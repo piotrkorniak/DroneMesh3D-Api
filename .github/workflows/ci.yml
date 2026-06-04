@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  format-check:
+    name: Code Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+          cache-dependency-path: Web/package-lock.json
+
+      - name: Install Web deps
+        run: npm ci
+        working-directory: Web
+
+      - name: Restore dotnet tools
+        run: dotnet tool restore
+
+      - name: Run CleanupCode
+        run: |
+          dotnet jb cleanupcode DroneMesh3D.slnx --profile="Built-in: Reformat Code" --no-build
+          CHANGED=$(git diff --name-only)
+          if [ -n "$CHANGED" ]; then
+            echo "::error::The following files are not formatted:"
+            echo "$CHANGED"
+            echo ""
+            echo "Run 'dotnet jb cleanupcode DroneMesh3D.slnx' locally to fix."
+            exit 1
+          fi
+
+      - name: Run ESLint
+        run: npx eslint . --max-warnings=0
+        working-directory: Web
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    needs: format-check
+    services:
+      postgres:
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_DB: dronemesh3d_test
+          POSTGRES_PASSWORD: YourStr0ngP@ssword
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build solution
+        run: dotnet build DroneMesh3D.slnx --configuration Release
+
+      - name: Run .NET tests
+        run: dotnet test DroneMesh3D.slnx --configuration Release --no-build --logger trx
+        env:
+          ConnectionStrings__Default: "Host=localhost;Database=dronemesh3d_test;Username=postgres;Password=YourStr0ngP@ssword"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+          cache-dependency-path: Web/package-lock.json
+
+      - name: Install & Test Web
+        run: |
+          npm ci
+          npm run test -- --watch=false --browsers=ChromeHeadless
+        working-directory: Web
+
+  build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build API image
+        run: docker build -t dronemesh3d-api:${{ github.sha }} -f Api/Dockerfile .
+
+      - name: Build Web image
+        run: docker build -t dronemesh3d-web:${{ github.sha }} ./Web

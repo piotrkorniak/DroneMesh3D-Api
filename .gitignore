@@ -1,0 +1,74 @@
+# ===========================
+# OS
+# ===========================
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+
+# ===========================
+# JetBrains (Rider, WebStorm)
+# ===========================
+.idea/
+*.sln.iml
+*.iml
+*.ipr
+*.iws
+
+# ===========================
+# Visual Studio / VS Code
+# ===========================
+.vs/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ===========================
+# .NET (Api, Core, Tests)
+# ===========================
+**/bin/
+**/obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+project.lock.json
+
+# ===========================
+# Angular / Web
+# ===========================
+Web/node_modules/
+Web/dist/
+Web/tmp/
+Web/out-tsc/
+Web/.angular/
+Web/coverage/
+npm-debug.log
+yarn-error.log
+
+# ===========================
+# Docker
+# ===========================
+docker-compose.override.local.yml
+
+# ===========================
+# Environment / Secrets
+# ===========================
+*.env
+!*.env.example
+appsettings.*.local.json
+
+# ===========================
+# Test results
+# ===========================
+*.trx
+TestResults/
+coverage/
+
+# ===========================
+# Misc
+# ===========================
+*.log

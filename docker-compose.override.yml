@@ -1,0 +1,26 @@
+# docker-compose.override.yml
+services:
+  web:
+    build:
+      context: ./Web
+      dockerfile: Dockerfile.dev
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./Web:/app
+      - /app/node_modules
+    command: npm start -- --host 0.0.0.0
+
+  api:
+    build:
+      context: .
+      dockerfile: Api/Dockerfile
+      target: build
+    ports:
+      - "5000:8080"
+    volumes:
+      - ./Api:/src/Api
+      - ./Core:/src/Core
+    command: dotnet watch run --project Api/DroneMesh3D.Api.csproj --urls http://0.0.0.0:8080
+    environment:
+      - DOTNET_USE_POLLING_FILE_WATCHER=1

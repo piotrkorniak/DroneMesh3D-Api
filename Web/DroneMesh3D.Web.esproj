@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.4991845">
+
+  <PropertyGroup>
+    <StartupCommand>npm start</StartupCommand>
+    <JavaScriptTestFramework>Jasmine</JavaScriptTestFramework>
+    <JavaScriptTestRoot>src/</JavaScriptTestRoot>
+    <ShouldRunBuildScript>false</ShouldRunBuildScript>
+    <PublishAssetsDirectory>dist/dronemesh3d-web/browser</PublishAssetsDirectory>
+  </PropertyGroup>
+
+</Project>

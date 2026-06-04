@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/Backend/">
+    <Project Path="Api/DroneMesh3D.Api.csproj" />
+    <Project Path="Core/DroneMesh3D.Core.csproj" />
+  </Folder>
+  <Folder Name="/Frontend/">
+    <Project Path="Web/DroneMesh3D.Web.esproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/Api.Tests/DroneMesh3D.Api.Tests.csproj" />
+    <Project Path="Tests/Core.Tests/DroneMesh3D.Core.Tests.csproj" />
+  </Folder>
+</Solution>

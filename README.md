@@ -4,6 +4,17 @@
 
 ---
 
+## Struktura projektu
+
+| Folder | Rola | Technologia |
+|--------|------|-------------|
+| `Api/` | Backend — warstwa HTTP/prezentacji | .NET 10, MediatR, Scalar (OpenAPI) |
+| `Core/` | Logika biznesowa i dostęp do danych | EF Core 10, NetTopologySuite, PostGIS |
+| `Web/` | Frontend (SPA) | Angular 21, OpenLayers |
+| `Tests/` | Testy jednostkowe i integracyjne | xUnit, WebApplicationFactory |
+
+---
+
 ## 1. Streszczenie (Executive Summary)
 **DroneMesh3D** to system programistyczny służący do automatyzacji procesu pozyskiwania i przetwarzania danych przestrzennych z drona w celu generowania trójwymiarowych modeli budynków. Projekt eliminuje potrzebę ręcznego sterowania dronem podczas robienia zdjęć oraz automatyzuje skomplikowany proces obróbki fotogrametrycznej.
 

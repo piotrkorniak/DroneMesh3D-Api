@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "jetbrains.resharper.globaltools": {
+      "version": "2026.1.2",
+      "commands": ["jb"],
+      "rollForward": false
+    },
+    "dotnet-ef": {
+      "version": "10.0.8",
+      "commands": ["dotnet-ef"],
+      "rollForward": false
+    }
+  }
+}
