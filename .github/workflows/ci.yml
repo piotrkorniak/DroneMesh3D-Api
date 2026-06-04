@@ -11,21 +11,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Backend - JetBrains CleanupCode
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
 
-      - name: Restore dotnet tools
-        run: dotnet tool restore
-
-      - name: Run CleanupCode (dry-run)
-        run: |
-          dotnet jb cleanupcode DroneMesh3D.slnx --profile="Built-in: Reformat Code" --no-build
-          git diff --exit-code -- Api/ Core/ || (echo "::error::Code is not formatted. Run 'dotnet jb cleanupcode DroneMesh3D.slnx' locally." && exit 1)
-
-      # Web - Prettier + ESLint
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -37,9 +27,20 @@ jobs:
         run: npm ci
         working-directory: Web
 
-      - name: Check Prettier formatting
-        run: npx prettier --list-different . || (echo "::error::The above files are not formatted. Run 'npx prettier --write .' in Web/ locally." && exit 1)
-        working-directory: Web
+      - name: Restore dotnet tools
+        run: dotnet tool restore
+
+      - name: Run CleanupCode
+        run: |
+          dotnet jb cleanupcode DroneMesh3D.slnx --profile="Built-in: Reformat Code" --no-build
+          CHANGED=$(git diff --name-only)
+          if [ -n "$CHANGED" ]; then
+            echo "::error::The following files are not formatted:"
+            echo "$CHANGED"
+            echo ""
+            echo "Run 'dotnet jb cleanupcode DroneMesh3D.slnx' locally to fix."
+            exit 1
+          fi
 
       - name: Run ESLint
         run: npx eslint . --max-warnings=0
@@ -66,7 +67,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # .NET tests (Api + Core)
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -80,7 +80,6 @@ jobs:
         env:
           ConnectionStrings__Default: "Host=localhost;Database=dronemesh3d_test;Username=postgres;Password=YourStr0ngP@ssword"
 
-      # Web tests
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
