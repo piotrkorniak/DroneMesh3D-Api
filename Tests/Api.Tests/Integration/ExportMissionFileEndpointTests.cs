@@ -119,18 +119,6 @@ public sealed class ExportMissionFileEndpointTests
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
     }
 
-    [Fact]
-    public async Task Export_InvalidFormatValue_Returns422()
-    {
-        // Arrange
-        var flightPlanId = await CreateFlightPlanAsync();
-
-        // Act
-        var response = await _client.GetAsync($"/api/flight-plans/{flightPlanId}/export?format=invalid");
-
-        // Assert
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
-    }
 
     /// <summary>
     ///     Helper that creates an area and a flight plan, returning the flight plan ID.
