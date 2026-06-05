@@ -1,41 +1,57 @@
 <div class="map-toolbar">
-  <div class="toolbar-actions">
+  <div class="map-toolbar__actions">
     <button
-      class="toolbar-btn draw-btn"
+      class="map-toolbar__btn map-toolbar__btn--draw"
+      [class.map-toolbar__btn--active]="isDrawing()"
       [disabled]="isDrawing()"
       (click)="draw.emit()"
-      aria-label="Draw polygon">
-      Draw
+      aria-label="Rysuj polygon"
+      title="Rysuj polygon">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+        <path d="M3 15L15 3M15 3H9M15 3V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      @if (!isDrawing()) {
+        <span class="map-toolbar__label">Rysuj</span>
+      } @else {
+        <span class="map-toolbar__label">Rysowanie...</span>
+      }
     </button>
 
     <button
-      class="toolbar-btn clear-btn"
+      class="map-toolbar__btn map-toolbar__btn--clear"
       [disabled]="!hasPolygon() || isSubmitting()"
       (click)="clear.emit()"
-      aria-label="Clear polygon">
-      Clear
+      aria-label="Wyczyść polygon"
+      title="Wyczyść polygon">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+        <path d="M5 5l8 8M13 5l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span class="map-toolbar__label">Wyczyść</span>
     </button>
 
     <button
-      class="toolbar-btn submit-btn"
+      class="map-toolbar__btn map-toolbar__btn--submit"
       [disabled]="!isValid() || isSubmitting() || !hasPolygon()"
       (click)="submitArea.emit()"
-      aria-label="Submit area">
+      aria-label="Zapisz obszar"
+      title="Zapisz obszar">
       @if (isSubmitting()) {
-      Submitting...
+        <span class="map-toolbar__spinner" aria-hidden="true"></span>
+        <span class="map-toolbar__label">Zapisuję...</span>
       } @else {
-      Submit
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+          <path d="M4 9l4 4 6-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="map-toolbar__label">Zapisz</span>
       }
     </button>
   </div>
 
   @if (validationErrors().length > 0) {
-  <div class="validation-errors" role="alert" aria-live="polite">
-    <ul>
+    <div class="map-toolbar__errors" role="alert" aria-live="polite">
       @for (error of validationErrors(); track error) {
-      <li>{{ error }}</li>
+        <span class="map-toolbar__error">{{ error }}</span>
       }
-    </ul>
-  </div>
+    </div>
   }
 </div>

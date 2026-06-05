@@ -30,22 +30,22 @@ interface FieldMeta {
 }
 
 const GRID_FIELDS: FieldMeta[] = [
-  { id: 'altitudeM', label: 'Wysokość (m)', tooltip: 'Wysokość lotu drona nad terenem w metrach', min: 20, max: 400, required: true, defaultValue: 100 },
+  { id: 'altitudeM', label: 'Wysokość (m)', tooltip: 'Wysokość lotu drona nad terenem w metrach (1–120)', min: 1, max: 120, required: true, defaultValue: 80 },
   { id: 'sensorWidthMm', label: 'Szerokość sensora (mm)', tooltip: 'Fizyczna szerokość sensora kamery w milimetrach', min: 1, max: 100, required: true, defaultValue: 13.2 },
   { id: 'focalLengthMm', label: 'Ogniskowa (mm)', tooltip: 'Ogniskowa obiektywu kamery w milimetrach', min: 1, max: 500, required: true, defaultValue: 8.8 },
   { id: 'imageWidthPx', label: 'Szerokość zdjęcia (px)', tooltip: 'Rozdzielczość pozioma zdjęcia w pikselach', min: 1, max: 20000, required: true, defaultValue: 4000 },
   { id: 'imageHeightPx', label: 'Wysokość zdjęcia (px)', tooltip: 'Rozdzielczość pionowa zdjęcia w pikselach', min: 1, max: 20000, required: true, defaultValue: 3000 },
-  { id: 'frontOverlapPercent', label: 'Nakładka frontalna (%)', tooltip: 'Procentowe pokrycie kolejnych zdjęć w kierunku lotu', min: 20, max: 95, required: true, defaultValue: 70 },
-  { id: 'sideOverlapPercent', label: 'Nakładka boczna (%)', tooltip: 'Procentowe pokrycie między sąsiednimi pasami lotu', min: 20, max: 95, required: true, defaultValue: 65 },
+  { id: 'frontOverlapPercent', label: 'Nakładka frontalna (%)', tooltip: 'Procentowe pokrycie kolejnych zdjęć w kierunku lotu (75–80%)', min: 75, max: 80, required: true, defaultValue: 78 },
+  { id: 'sideOverlapPercent', label: 'Nakładka boczna (%)', tooltip: 'Procentowe pokrycie między sąsiednimi pasami lotu (65–75%)', min: 65, max: 75, required: true, defaultValue: 70 },
   { id: 'headingDegrees', label: 'Kierunek (°)', tooltip: 'Kierunek przelotu w stopniach (0–359). Opcjonalny.', min: 0, max: 359, required: false, defaultValue: null },
 ];
 
 const POI_FIELDS: FieldMeta[] = [
   { id: 'centerLatitude', label: 'Szerokość geogr. środka', tooltip: 'Szerokość geograficzna punktu centralnego (–90 do 90)', min: -90, max: 90, required: true, defaultValue: null },
   { id: 'centerLongitude', label: 'Długość geogr. środka', tooltip: 'Długość geograficzna punktu centralnego (–180 do 180)', min: -180, max: 180, required: true, defaultValue: null },
-  { id: 'radiusM', label: 'Promień (m)', tooltip: 'Promień okręgu lotu wokół punktu w metrach', min: 5, max: 500, required: true, defaultValue: 50 },
-  { id: 'altitudeM', label: 'Wysokość (m)', tooltip: 'Wysokość lotu drona w metrach', min: 20, max: 400, required: true, defaultValue: 80 },
-  { id: 'gimbalPitchDegrees', label: 'Pochylenie gimbala (°)', tooltip: 'Kąt pochylenia kamery (–90 do 0, gdzie –90 = prosto w dół)', min: -90, max: 0, required: true, defaultValue: -45 },
+  { id: 'radiusM', label: 'Promień (m)', tooltip: 'Promień okręgu lotu wokół punktu w metrach', min: 1, max: 500, required: true, defaultValue: 50 },
+  { id: 'altitudeM', label: 'Wysokość (m)', tooltip: 'Wysokość lotu drona w metrach (1–120)', min: 1, max: 120, required: true, defaultValue: 80 },
+  { id: 'gimbalPitchDegrees', label: 'Pochylenie gimbala (°)', tooltip: 'Kąt pochylenia kamery (–90 do –45)', min: -90, max: -45, required: true, defaultValue: -45 },
   { id: 'photoCount', label: 'Liczba zdjęć', tooltip: 'Liczba zdjęć do wykonania na okręgu. Opcjonalny.', min: 1, max: 1000, required: false, defaultValue: null },
   { id: 'overlapPercent', label: 'Nakładka (%)', tooltip: 'Procentowe pokrycie zdjęć. Opcjonalny.', min: 20, max: 95, required: false, defaultValue: null },
   { id: 'cameraHorizontalFovDegrees', label: 'FOV kamery (°)', tooltip: 'Poziome pole widzenia kamery w stopniach. Opcjonalny.', min: 1, max: 180, required: false, defaultValue: null },
@@ -232,13 +232,13 @@ export class FlightPlanFormComponent {
 
   private buildGridForm(): FormGroup {
     return new FormGroup({
-      altitudeM: new FormControl(100, [Validators.required, rangeValidator(20, 400)]),
+      altitudeM: new FormControl(80, [Validators.required, rangeValidator(1, 120)]),
       sensorWidthMm: new FormControl(13.2, [Validators.required, rangeValidator(1, 100)]),
       focalLengthMm: new FormControl(8.8, [Validators.required, rangeValidator(1, 500)]),
       imageWidthPx: new FormControl(4000, [Validators.required, rangeValidator(1, 20000)]),
       imageHeightPx: new FormControl(3000, [Validators.required, rangeValidator(1, 20000)]),
-      frontOverlapPercent: new FormControl(70, [Validators.required, rangeValidator(20, 95)]),
-      sideOverlapPercent: new FormControl(65, [Validators.required, rangeValidator(20, 95)]),
+      frontOverlapPercent: new FormControl(78, [Validators.required, rangeValidator(75, 80)]),
+      sideOverlapPercent: new FormControl(70, [Validators.required, rangeValidator(65, 75)]),
       headingDegrees: new FormControl(null, [rangeValidator(0, 359)]),
     });
   }
@@ -247,9 +247,9 @@ export class FlightPlanFormComponent {
     return new FormGroup({
       centerLatitude: new FormControl(null, [Validators.required, rangeValidator(-90, 90)]),
       centerLongitude: new FormControl(null, [Validators.required, rangeValidator(-180, 180)]),
-      radiusM: new FormControl(50, [Validators.required, rangeValidator(5, 500)]),
-      altitudeM: new FormControl(80, [Validators.required, rangeValidator(20, 400)]),
-      gimbalPitchDegrees: new FormControl(-45, [Validators.required, rangeValidator(-90, 0)]),
+      radiusM: new FormControl(50, [Validators.required, rangeValidator(1, 500)]),
+      altitudeM: new FormControl(80, [Validators.required, rangeValidator(1, 120)]),
+      gimbalPitchDegrees: new FormControl(-45, [Validators.required, rangeValidator(-90, -45)]),
       photoCount: new FormControl(null, [rangeValidator(1, 1000)]),
       overlapPercent: new FormControl(null, [rangeValidator(20, 95)]),
       cameraHorizontalFovDegrees: new FormControl(null, [rangeValidator(1, 180)]),

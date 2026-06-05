@@ -7,11 +7,15 @@ import {
   signal,
 } from '@angular/core';
 import { PanelStateService } from '../../services/panel-state.service';
+import { AreaListComponent } from '../area-list/area-list.component';
+import { FlightPlanFormComponent } from '../flight-plan-form/flight-plan-form.component';
+import { FlightPlanListComponent } from '../flight-plan-list/flight-plan-list.component';
 
 @Component({
   selector: 'app-side-panel',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [AreaListComponent, FlightPlanFormComponent, FlightPlanListComponent],
   templateUrl: './side-panel.component.html',
   styleUrl: './side-panel.component.scss',
 })

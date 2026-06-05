@@ -33,7 +33,8 @@ export class AreaListComponent implements OnInit {
   private readonly areaCalcService = inject(AreaCalculationService);
   readonly selectionState = inject(SelectionStateService);
 
-  readonly areas = signal<AreaResponse[]>([]);
+  /** Areas displayed in the list — derived from SelectionStateService (single source of truth) */
+  readonly areas = computed(() => this.selectionState.areas());
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly focusedIndex = signal(-1);
@@ -99,7 +100,6 @@ export class AreaListComponent implements OnInit {
     this.areasApi.listAreas().subscribe({
       next: (response) => {
         const sorted = sortByCreatedAtDesc(response);
-        this.areas.set(sorted);
         this.selectionState.areas.set(sorted);
         this.loading.set(false);
       },

@@ -90,10 +90,7 @@
       </button>
       @if (!panelState.sectionCollapsed.Area_List() && panelState.isExpanded()) {
         <div class="side-panel__section-content">
-          <!-- AreaListComponent will be placed here -->
-          <div class="side-panel__placeholder" aria-label="Area list placeholder">
-            <span class="side-panel__placeholder-text">Area List</span>
-          </div>
+          <app-area-list />
         </div>
       }
     </section>
@@ -119,10 +116,7 @@
       </button>
       @if (!panelState.sectionCollapsed.Flight_Plan_Form() && panelState.isExpanded()) {
         <div class="side-panel__section-content">
-          <!-- FlightPlanFormComponent will be placed here -->
-          <div class="side-panel__placeholder" aria-label="Flight plan form placeholder">
-            <span class="side-panel__placeholder-text">Flight Plan Form</span>
-          </div>
+          <app-flight-plan-form />
         </div>
       }
     </section>
@@ -150,10 +144,7 @@
       </button>
       @if (!panelState.sectionCollapsed.Flight_Plan_List() && panelState.isExpanded()) {
         <div class="side-panel__section-content">
-          <!-- FlightPlanListComponent will be placed here -->
-          <div class="side-panel__placeholder" aria-label="Flight plan list placeholder">
-            <span class="side-panel__placeholder-text">Flight Plan List</span>
-          </div>
+          <app-flight-plan-list />
         </div>
       }
     </section>

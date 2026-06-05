@@ -6,7 +6,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { FlightPlanResponse } from '../../api/models/flight-plan-response';
 import { FlightPlansApiService } from '../../api/services/flight-plans.service';
 import { SelectionStateService } from '../../services/selection-state.service';
 import { RelativeTimePipe } from '../../pipes/relative-time.pipe';
@@ -33,7 +32,8 @@ export class FlightPlanListComponent {
   private readonly flightPlansApi = inject(FlightPlansApiService);
   readonly selectionState = inject(SelectionStateService);
 
-  readonly plans = signal<FlightPlanResponse[]>([]);
+  /** Plans displayed in the list — derived from SelectionStateService (single source of truth) */
+  readonly plans = computed(() => this.selectionState.plans());
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly focusedIndex = signal(-1);
@@ -63,7 +63,6 @@ export class FlightPlanListComponent {
         this.loadPlans();
       } else {
         // No area selected — clear plans
-        this.plans.set([]);
         this.selectionState.plans.set([]);
         this.loading.set(false);
         this.error.set(null);
@@ -77,7 +76,6 @@ export class FlightPlanListComponent {
     if (!areaId) return;
 
     // Discard current data and show loading
-    this.plans.set([]);
     this.selectionState.plans.set([]);
     this.loading.set(true);
     this.error.set(null);
@@ -92,7 +90,6 @@ export class FlightPlanListComponent {
     this.currentSubscription = this.flightPlansApi.list({ areaId }).subscribe({
       next: (response) => {
         const sorted = sortByCreatedAtDesc(response);
-        this.plans.set(sorted);
         this.selectionState.plans.set(sorted);
         this.loading.set(false);
       },

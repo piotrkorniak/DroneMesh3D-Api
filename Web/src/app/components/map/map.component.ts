@@ -18,6 +18,7 @@ import Draw from 'ol/interaction/Draw';
 import Modify from 'ol/interaction/Modify';
 import { fromLonLat, toLonLat } from 'ol/proj';
 import { boundingExtent } from 'ol/extent';
+import Feature from 'ol/Feature';
 import Polygon from 'ol/geom/Polygon';
 import Style from 'ol/style/Style';
 import Stroke from 'ol/style/Stroke';
@@ -88,9 +89,16 @@ export class MapComponent implements OnInit, OnDestroy {
     }
   });
 
-  // React to selectedArea changes: animate map to fit polygon bounds
+  // React to selectedArea changes: draw polygon on map and animate to fit bounds
   private readonly selectedAreaEffect = effect(() => {
     const area = this.selectionState.selectedArea();
+
+    // Clear any existing polygon from the vector source
+    this.vectorSource.clear();
+    this.hasPolygon.set(false);
+    this.validationResult.set(null);
+    this.removeModifyInteraction();
+
     if (!area || !area.geometry || !area.geometry.coordinates) return;
 
     const coordinates = area.geometry.coordinates[0]; // outer ring
@@ -99,10 +107,15 @@ export class MapComponent implements OnInit, OnDestroy {
     // Transform coordinates from EPSG:4326 to map projection (EPSG:3857)
     const projectedCoords = coordinates.map(coord => fromLonLat(coord as [number, number]));
 
-    // Create extent from all projected coordinates
-    const extent = boundingExtent(projectedCoords);
+    // Create and add the polygon feature to the map
+    const polygon = new Polygon([projectedCoords]);
+    const feature = new Feature(polygon);
+    this.vectorSource.addFeature(feature);
+    this.hasPolygon.set(true);
+    this.vectorLayer.setStyle(this.validStyle);
 
     // Animate map view to fit the extent with 10% padding, 500ms duration
+    const extent = boundingExtent(projectedCoords);
     const view = this.map?.getView();
     if (view) {
       const size = this.map.getSize();
@@ -265,7 +278,15 @@ export class MapComponent implements OnInit, OnDestroy {
       .pipe(finalize(() => this.isSubmitting.set(false)))
       .subscribe({
         next: response => {
-          console.log('Area created successfully:', response);
+          // Prepend the new area to the list so it appears immediately
+          this.selectionState.areas.update(areas => [response, ...areas]);
+          // Select the new area (highlights it on the list and zooms map)
+          this.selectionState.selectArea(response.id);
+          // Clear the drawn polygon (it will be re-rendered by selectedAreaEffect)
+          this.vectorSource.clear();
+          this.removeModifyInteraction();
+          this.hasPolygon.set(false);
+          this.validationResult.set(null);
         },
         error: err => {
           const message =
