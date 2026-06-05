@@ -33,9 +33,12 @@ jobs:
       - name: Restore dotnet tools
         run: dotnet tool restore
 
+      - name: Restore NuGet packages
+        run: dotnet restore DroneMesh3D.slnx
+
       - name: Run CleanupCode
         run: |
-          dotnet jb cleanupcode DroneMesh3D.slnx --profile="Built-in: Full Cleanup" --no-build --dotnetcore="$(which dotnet)"
+          dotnet jb cleanupcode DroneMesh3D.slnx --profile="Built-in: Full Cleanup" --dotnetcore="$(which dotnet)"
           CHANGED=$(git diff --name-only)
           if [ -n "$CHANGED" ]; then
             echo "::error::The following files are not formatted:"
