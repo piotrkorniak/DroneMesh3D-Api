@@ -4,8 +4,6 @@ services:
     build:
       context: ./Web
       dockerfile: Dockerfile
-    ports:
-      - "4200:80"
     depends_on:
       - api
     networks:

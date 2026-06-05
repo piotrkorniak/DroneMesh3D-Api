@@ -10,6 +10,10 @@ services:
       - ./Web:/app
       - /app/node_modules
     command: npm start -- --host 0.0.0.0
+    depends_on:
+      - api
+    networks:
+      - dronemesh
 
   api:
     build:
