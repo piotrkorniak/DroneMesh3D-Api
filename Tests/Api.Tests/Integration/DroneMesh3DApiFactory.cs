@@ -12,6 +12,17 @@ namespace DroneMesh3D.Api.Tests.Integration;
 /// </summary>
 public sealed class DroneMesh3DApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
+    public async Task InitializeAsync()
+    {
+        // Ensure a clean database at the start of the test run
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await db.Database.EnsureDeletedAsync();
+        await db.Database.EnsureCreatedAsync();
+    }
+
+    Task IAsyncLifetime.DisposeAsync() => Task.CompletedTask;
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureServices(services =>
@@ -46,23 +57,9 @@ public sealed class DroneMesh3DApiFactory : WebApplicationFactory<Program>, IAsy
             var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__Default")
                                    ?? "Host=localhost;Database=dronemesh3d_test;Username=postgres;Password=YourStr0ngP@ssword";
 
-            services.AddDbContext<AppDbContext>(options =>
-            {
-                options.UseNpgsql(connectionString, x => x.UseNetTopologySuite());
-            });
+            services.AddDbContext<AppDbContext>(options => { options.UseNpgsql(connectionString, x => x.UseNetTopologySuite()); });
         });
 
         builder.UseEnvironment("Testing");
     }
-
-    public async Task InitializeAsync()
-    {
-        // Ensure a clean database at the start of the test run
-        using var scope = Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        await db.Database.EnsureDeletedAsync();
-        await db.Database.EnsureCreatedAsync();
-    }
-
-    Task IAsyncLifetime.DisposeAsync() => Task.CompletedTask;
 }

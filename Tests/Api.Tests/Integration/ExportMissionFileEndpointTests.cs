@@ -1,6 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
-using DroneMesh3D.Api.DTOs;
 
 namespace DroneMesh3D.Api.Tests.Integration;
 
