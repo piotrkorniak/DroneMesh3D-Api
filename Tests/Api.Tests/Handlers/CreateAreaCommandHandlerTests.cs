@@ -52,19 +52,6 @@ public sealed class CreateAreaCommandHandlerTests
         await _repository.Received(1).AddAsync(Arg.Any<AreaEntity>(), Arg.Any<CancellationToken>());
     }
 
-    [Theory]
-    [InlineData("Point")]
-    [InlineData("LineString")]
-    [InlineData("")]
-    [InlineData("MultiPolygon")]
-    public async Task Handle_InvalidGeoJsonType_ReturnsErrorResponse(string invalidType)
-    {
-        // Arrange — invalid types can't be represented as GeoJsonType enum,
-        // so this test validates the GeoJsonValidator directly rejects non-Polygon.
-        // The handler now only accepts GeoJsonType.Polygon via the enum.
-        // This test becomes a GeoJsonValidator concern.
-    }
-
     [Fact]
     public async Task Handle_MultiRingPolygon_ReturnsErrorResponse()
     {

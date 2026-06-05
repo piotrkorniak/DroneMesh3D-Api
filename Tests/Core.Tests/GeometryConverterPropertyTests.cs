@@ -1,4 +1,5 @@
 using DroneMesh3D.Core.Entities;
+using DroneMesh3D.Core.Models;
 using DroneMesh3D.Core.Tests.Validation;
 using FsCheck.Xunit;
 
@@ -89,7 +90,7 @@ public sealed class GeometryConverterPropertyTests
         var geoJson = GeometryConverter.ToGeoJson(polygon);
 
         // Type must be "Polygon"
-        if (geoJson.Type != "Polygon") return false;
+        if (geoJson.Type != GeoJsonType.Polygon) return false;
 
         // Must have exactly one ring (outer ring, no holes)
         if (geoJson.Coordinates.Length != 1) return false;

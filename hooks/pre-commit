@@ -1,9 +1,6 @@
 #!/bin/sh
-# Pre-commit hook: code cleanup + lint verification
-# Install: git config core.hooksPath hooks
-#
-# Runs CleanupCode on staged C# files and ESLint on staged Web files.
-# If formatter modifies files, commit is rejected — add the changes and retry.
+# Pre-commit hook: format, lint, build, test
+# Install: git config core.hooksPath hooks (auto-installed by dotnet build / npm install)
 
 set -e
 
@@ -37,14 +34,28 @@ fi
 # --- ESLint ---
 if [ -n "$STAGED_TS" ]; then
   echo "Running ESLint on staged Web files..."
-  # Convert paths from Web/src/... to src/... for eslint
   FILES_FOR_LINT=$(echo "$STAGED_TS" | sed 's|^Web/||' | tr '\n' ' ')
   (cd Web && npx eslint --max-warnings=0 $FILES_FOR_LINT)
-  if [ $? -ne 0 ]; then
-    echo ""
-    echo "ERROR: ESLint found errors. Fix them before committing."
-    exit 1
-  fi
 fi
+
+echo "=== Pre-commit: Build ==="
+
+# --- Backend build ---
+echo "Building .NET solution..."
+dotnet build DroneMesh3D.slnx --configuration Release --nologo -v q
+
+# --- Frontend build ---
+echo "Building Angular app..."
+(cd Web && npx ng build --configuration production)
+
+echo "=== Pre-commit: Tests ==="
+
+# --- Backend tests (skip integration tests that need DB) ---
+echo "Running .NET tests..."
+dotnet test DroneMesh3D.slnx --configuration Release --no-build --nologo -v q --filter "Category!=Integration"
+
+# --- Frontend tests ---
+echo "Running Angular tests..."
+(cd Web && npx ng test --watch=false --browsers=ChromeHeadless)
 
 echo "=== Pre-commit: All checks passed ==="

@@ -1,3 +1,4 @@
+using DroneMesh3D.Core.Models;
 using DroneMesh3D.Core.Validation;
 
 namespace DroneMesh3D.Core.Tests.Validation;
@@ -18,32 +19,15 @@ public sealed class GeoJsonValidatorTests
     {
         var coordinates = new[] { ValidRing };
 
-        var result = GeoJsonValidator.IsValidPolygon("Polygon", coordinates);
+        var result = GeoJsonValidator.IsValidPolygon(GeoJsonType.Polygon, coordinates);
 
         Assert.True(result);
-    }
-
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData("Point")]
-    [InlineData("LineString")]
-    [InlineData("MultiPolygon")]
-    [InlineData("polygon")]
-    [InlineData("POLYGON")]
-    public void IsValidPolygon_InvalidType_ReturnsFalse(string? type)
-    {
-        var coordinates = new[] { ValidRing };
-
-        var result = GeoJsonValidator.IsValidPolygon(type, coordinates);
-
-        Assert.False(result);
     }
 
     [Fact]
     public void IsValidPolygon_NullCoordinates_ReturnsFalse()
     {
-        var result = GeoJsonValidator.IsValidPolygon("Polygon", null);
+        var result = GeoJsonValidator.IsValidPolygon(GeoJsonType.Polygon, null);
 
         Assert.False(result);
     }
@@ -51,7 +35,7 @@ public sealed class GeoJsonValidatorTests
     [Fact]
     public void IsValidPolygon_EmptyCoordinates_ReturnsFalse()
     {
-        var result = GeoJsonValidator.IsValidPolygon("Polygon", []);
+        var result = GeoJsonValidator.IsValidPolygon(GeoJsonType.Polygon, []);
 
         Assert.False(result);
     }
@@ -61,7 +45,7 @@ public sealed class GeoJsonValidatorTests
     {
         double[][]?[] coordinates = [null];
 
-        var result = GeoJsonValidator.IsValidPolygon("Polygon", coordinates);
+        var result = GeoJsonValidator.IsValidPolygon(GeoJsonType.Polygon, coordinates);
 
         Assert.False(result);
     }
@@ -71,7 +55,7 @@ public sealed class GeoJsonValidatorTests
     {
         var coordinates = new[] { Array.Empty<double[]>() };
 
-        var result = GeoJsonValidator.IsValidPolygon("Polygon", coordinates);
+        var result = GeoJsonValidator.IsValidPolygon(GeoJsonType.Polygon, coordinates);
 
         Assert.False(result);
     }
@@ -82,7 +66,7 @@ public sealed class GeoJsonValidatorTests
         double[][] ring = [[21.0]]; // only one coordinate value
         var coordinates = new[] { ring };
 
-        var result = GeoJsonValidator.IsValidPolygon("Polygon", coordinates);
+        var result = GeoJsonValidator.IsValidPolygon(GeoJsonType.Polygon, coordinates);
 
         Assert.False(result);
     }
@@ -93,7 +77,7 @@ public sealed class GeoJsonValidatorTests
         double[][] ring = [[21.0, 52.0], null!, [21.1, 52.1]];
         double[][]?[] coordinates = [ring];
 
-        var result = GeoJsonValidator.IsValidPolygon("Polygon", coordinates);
+        var result = GeoJsonValidator.IsValidPolygon(GeoJsonType.Polygon, coordinates);
 
         Assert.False(result);
     }
@@ -119,7 +103,7 @@ public sealed class GeoJsonValidatorTests
         ];
         var coordinates = new[] { outerRing, innerRing };
 
-        var result = GeoJsonValidator.IsValidPolygon("Polygon", coordinates);
+        var result = GeoJsonValidator.IsValidPolygon(GeoJsonType.Polygon, coordinates);
 
         Assert.True(result);
     }
@@ -129,7 +113,7 @@ public sealed class GeoJsonValidatorTests
     {
         double[][]?[] coordinates = [ValidRing, null];
 
-        var result = GeoJsonValidator.IsValidPolygon("Polygon", coordinates);
+        var result = GeoJsonValidator.IsValidPolygon(GeoJsonType.Polygon, coordinates);
 
         Assert.False(result);
     }
@@ -139,7 +123,7 @@ public sealed class GeoJsonValidatorTests
     {
         var coordinates = new[] { ValidRing, Array.Empty<double[]>() };
 
-        var result = GeoJsonValidator.IsValidPolygon("Polygon", coordinates);
+        var result = GeoJsonValidator.IsValidPolygon(GeoJsonType.Polygon, coordinates);
 
         Assert.False(result);
     }
@@ -147,12 +131,12 @@ public sealed class GeoJsonValidatorTests
     [Fact]
     public void IsValidPolygon_SinglePointRing_ReturnsTrue()
     {
-        // Structurally valid (has at least 2 coords per point), 
+        // Structurally valid (has at least 2 coords per point),
         // geometry validation (min vertices, closure) is AreaValidator's job
         double[][] ring = [[21.0, 52.0]];
         var coordinates = new[] { ring };
 
-        var result = GeoJsonValidator.IsValidPolygon("Polygon", coordinates);
+        var result = GeoJsonValidator.IsValidPolygon(GeoJsonType.Polygon, coordinates);
 
         Assert.True(result);
     }
@@ -164,7 +148,7 @@ public sealed class GeoJsonValidatorTests
         double[][] ring = [[21.0, 52.0, 100.0], [21.1, 52.1, 200.0], [21.0, 52.0, 100.0]];
         var coordinates = new[] { ring };
 
-        var result = GeoJsonValidator.IsValidPolygon("Polygon", coordinates);
+        var result = GeoJsonValidator.IsValidPolygon(GeoJsonType.Polygon, coordinates);
 
         Assert.True(result);
     }

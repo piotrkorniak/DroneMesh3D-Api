@@ -1,21 +1,26 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using DroneMesh3D.Api.DTOs;
 using DroneMesh3D.Core.Data;
+using DroneMesh3D.Core.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 
 namespace DroneMesh3D.Api.Tests.Integration;
 
+[Trait("Category", "Integration")]
 public sealed class AreasEndpointTests : IClassFixture<AreasEndpointTests.AreasApiFactory>, IDisposable
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        Converters = { new JsonStringEnumConverter() }
     };
 
     // A valid closed polygon ring (~200m x 200m square in Warsaw)
@@ -45,7 +50,7 @@ public sealed class AreasEndpointTests : IClassFixture<AreasEndpointTests.AreasA
     public async Task Post_ValidPolygon_Returns201WithAreaResponse()
     {
         // Arrange
-        var request = new CreateAreaRequest("Polygon", ValidPolygonCoordinates);
+        var request = new CreateAreaRequest(GeoJsonType.Polygon, ValidPolygonCoordinates);
 
         // Act
         var response = await _client.PostAsJsonAsync("/api/areas", request, JsonOptions);
@@ -57,7 +62,7 @@ public sealed class AreasEndpointTests : IClassFixture<AreasEndpointTests.AreasA
         Assert.NotNull(body);
         Assert.NotEqual(Guid.Empty, body.Id);
         Assert.True(body.CreatedAt > DateTimeOffset.MinValue);
-        Assert.Equal("Polygon", body.Geometry.Type);
+        Assert.Equal(GeoJsonType.Polygon, body.Geometry.Type);
         Assert.Single(body.Geometry.Coordinates);
 
         // Verify Location header
@@ -67,17 +72,15 @@ public sealed class AreasEndpointTests : IClassFixture<AreasEndpointTests.AreasA
     [Fact]
     public async Task Post_InvalidGeoJson_Returns400BadRequest()
     {
-        // Arrange — "Point" is not a valid polygon type
-        var request = new CreateAreaRequest("Point", ValidPolygonCoordinates);
+        // Arrange — send raw JSON with invalid type (can't construct via enum)
+        var json = """{"type":"Point","coordinates":[[[21.0,52.0],[21.002,52.0],[21.002,52.0018],[21.0,52.0018],[21.0,52.0]]]}""";
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/areas", request, JsonOptions);
+        var response = await _client.PostAsync("/api/areas", content);
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-
-        var body = await response.Content.ReadAsStringAsync();
-        Assert.Contains("Invalid GeoJSON", body);
     }
 
     [Fact]
@@ -92,7 +95,7 @@ public sealed class AreasEndpointTests : IClassFixture<AreasEndpointTests.AreasA
                 [21.0000, 52.0000]
             ]
         ];
-        var request = new CreateAreaRequest("Polygon", degenerateCoordinates);
+        var request = new CreateAreaRequest(GeoJsonType.Polygon, degenerateCoordinates);
 
         // Act
         var response = await _client.PostAsJsonAsync("/api/areas", request, JsonOptions);
@@ -110,7 +113,7 @@ public sealed class AreasEndpointTests : IClassFixture<AreasEndpointTests.AreasA
     public async Task Get_ExistingArea_Returns200WithAreaResponse()
     {
         // Arrange — create an area first
-        var request = new CreateAreaRequest("Polygon", ValidPolygonCoordinates);
+        var request = new CreateAreaRequest(GeoJsonType.Polygon, ValidPolygonCoordinates);
         var createResponse = await _client.PostAsJsonAsync("/api/areas", request, JsonOptions);
         createResponse.EnsureSuccessStatusCode();
         var created = await createResponse.Content.ReadFromJsonAsync<AreaResponse>(JsonOptions);
@@ -125,7 +128,7 @@ public sealed class AreasEndpointTests : IClassFixture<AreasEndpointTests.AreasA
         var body = await response.Content.ReadFromJsonAsync<AreaResponse>(JsonOptions);
         Assert.NotNull(body);
         Assert.Equal(created.Id, body.Id);
-        Assert.Equal("Polygon", body.Geometry.Type);
+        Assert.Equal(GeoJsonType.Polygon, body.Geometry.Type);
     }
 
     [Fact]
@@ -142,19 +145,16 @@ public sealed class AreasEndpointTests : IClassFixture<AreasEndpointTests.AreasA
     }
 
     /// <summary>
-    ///     Custom WebApplicationFactory that replaces the PostgreSQL/PostGIS database
-    ///     with an in-memory SQLite database using NetTopologySuite for spatial support.
+    ///     Custom WebApplicationFactory that uses the real PostgreSQL/PostGIS database
+    ///     from the test connection string (CI service container or local Docker).
     /// </summary>
     public sealed class AreasApiFactory : WebApplicationFactory<Program>
     {
-        private SqliteConnection? _connection;
-
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.ConfigureServices(services =>
             {
-                // Remove ALL DbContext-related registrations to prevent dual-provider conflict.
-                // AddDbContext registers DbContextOptions, the context itself, and provider-specific services.
+                // Remove existing DbContext registration
                 var descriptorsToRemove = services
                     .Where(d =>
                         d.ServiceType == typeof(DbContextOptions<AppDbContext>)
@@ -165,9 +165,11 @@ public sealed class AreasEndpointTests : IClassFixture<AreasEndpointTests.AreasA
                     .ToList();
 
                 foreach (var d in descriptorsToRemove)
+                {
                     services.Remove(d);
+                }
 
-                // Also remove all internal EF Core provider services (the Npgsql registrations)
+                // Remove Npgsql provider services
                 var efInternalDescriptors = services
                     .Where(d =>
                         d.ServiceType.FullName?.StartsWith("Microsoft.EntityFrameworkCore") == true
@@ -175,43 +177,24 @@ public sealed class AreasEndpointTests : IClassFixture<AreasEndpointTests.AreasA
                     .ToList();
 
                 foreach (var d in efInternalDescriptors)
-                    services.Remove(d);
-
-                // Create and open a persistent SQLite connection for the test lifetime
-                _connection = new SqliteConnection("DataSource=:memory:");
-                _connection.Open();
-
-                // Register AppDbContext with SQLite + NTS (AppDbContext auto-detects provider)
-                services.AddDbContext<AppDbContext>(options =>
                 {
-                    options.UseSqlite(_connection, x => x.UseNetTopologySuite());
-                });
+                    services.Remove(d);
+                }
 
-                // Ensure the database schema is created
+                // Use PostgreSQL with a test-specific database name to avoid conflicts
+                var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__Default")
+                                       ?? "Host=localhost;Database=dronemesh3d_test;Username=postgres;Password=YourStr0ngP@ssword";
+
+                services.AddDbContext<AppDbContext>(options => { options.UseNpgsql(connectionString, x => x.UseNetTopologySuite()); });
+
+                // Ensure schema is created
                 var sp = services.BuildServiceProvider();
                 using var scope = sp.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                 db.Database.EnsureCreated();
-
-                // SpatiaLite registers the geometry column with SRID=0 and type=GEOMETRY by default.
-                // Re-register it with SRID=4326 and type=POLYGON to match the app's NTS geometries.
-                db.Database.ExecuteSqlRaw(
-                    "SELECT DiscardGeometryColumn('Areas', 'Geometry')");
-                db.Database.ExecuteSqlRaw(
-                    "SELECT RecoverGeometryColumn('Areas', 'Geometry', 4326, 'POLYGON', 'XY')");
             });
 
             builder.UseEnvironment("Testing");
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            if (disposing)
-            {
-                _connection?.Close();
-                _connection?.Dispose();
-            }
         }
     }
 }
