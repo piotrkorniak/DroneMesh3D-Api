@@ -6,18 +6,11 @@ namespace DroneMesh3D.Core.Data;
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
     public DbSet<AreaEntity> Areas => Set<AreaEntity>();
+    public DbSet<FlightPlanEntity> FlightPlans => Set<FlightPlanEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasPostgresExtension("postgis");
-
-        modelBuilder.Entity<AreaEntity>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
-            entity.Property(e => e.Geometry).HasColumnType("geometry(Polygon, 4326)");
-            entity.HasIndex(e => e.Geometry).HasMethod("gist");
-        });
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
 }

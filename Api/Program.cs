@@ -1,68 +1,18 @@
-using System.Text.Json.Serialization;
-using DroneMesh3D.Api.Behaviors;
-using DroneMesh3D.Api.Endpoints;
-using DroneMesh3D.Api.Middleware;
-using DroneMesh3D.Core.Data;
-using DroneMesh3D.Core.Interfaces;
-using DroneMesh3D.Core.Repositories;
-using DroneMesh3D.Core.Validation;
-using FluentValidation;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Scalar.AspNetCore;
+using DroneMesh3D.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// JSON serialization
-builder.Services.ConfigureHttpJsonOptions(options =>
-    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-
-// OpenAPI + Scalar
-builder.Services.AddOpenApi();
-
-// Global exception handling
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddProblemDetails();
-
-// MediatR
-builder.Services.AddMediatR(cfg =>
-{
-    cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
-    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-});
-
-// FluentValidation
-builder.Services.AddValidatorsFromAssemblyContaining<Program>();
-
-// Application services
-builder.Services.AddScoped<IAreaValidator, AreaValidator>();
-builder.Services.AddScoped<IAreaRepository, AreaRepository>();
-
-// EF Core with spatial types
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("Default"),
-        x => x.UseNetTopologySuite()));
-
-// CORS
-builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
-    p.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader()));
+builder.Services
+    .AddApiInfrastructure()
+    .AddMediatrPipeline()
+    .AddApplicationServices()
+    .AddPersistence(builder.Configuration)
+    .AddCorsPolicies(builder.Configuration);
 
 var app = builder.Build();
 
-// Auto-apply pending migrations on startup (development only)
-if (app.Environment.IsDevelopment())
-{
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await db.Database.MigrateAsync();
-}
-
-app.UseExceptionHandler();
-app.UseCors();
-app.MapOpenApi();
-app.MapScalarApiReference();
-app.MapAreasEndpoints();
+await app.ConfigurePipelineAsync();
+app.MapEndpoints();
 
 app.Run();
 
