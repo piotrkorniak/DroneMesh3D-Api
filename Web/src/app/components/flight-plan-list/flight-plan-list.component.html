@@ -92,3 +92,10 @@
     }
   </div>
 }
+
+@if (exportTriggeredPlanId()) {
+  <app-export-dialog
+    [planId]="exportTriggeredPlanId()!"
+    (closed)="closeExportDialog()"
+  />
+}

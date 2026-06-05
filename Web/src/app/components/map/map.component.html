@@ -1,4 +1,5 @@
 <div id="map-container" #mapContainer class="map-container">
+  <app-map-search (locationSelected)="flyToLocation($event)" />
   <div class="toolbar-overlay">
     <app-map-toolbar
       [isDrawing]="isDrawing()"

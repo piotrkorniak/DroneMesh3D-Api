@@ -56,19 +56,19 @@ describe('MapToolbarComponent', () => {
   });
 
   function getDrawButton(): HTMLButtonElement {
-    return hostFixture.nativeElement.querySelector('.draw-btn') as HTMLButtonElement;
+    return hostFixture.nativeElement.querySelector('.map-toolbar__btn--draw') as HTMLButtonElement;
   }
 
   function getClearButton(): HTMLButtonElement {
-    return hostFixture.nativeElement.querySelector('.clear-btn') as HTMLButtonElement;
+    return hostFixture.nativeElement.querySelector('.map-toolbar__btn--clear') as HTMLButtonElement;
   }
 
   function getSubmitButton(): HTMLButtonElement {
-    return hostFixture.nativeElement.querySelector('.submit-btn') as HTMLButtonElement;
+    return hostFixture.nativeElement.querySelector('.map-toolbar__btn--submit') as HTMLButtonElement;
   }
 
-  function getValidationErrors(): HTMLLIElement[] {
-    return Array.from(hostFixture.nativeElement.querySelectorAll('.validation-errors li'));
+  function getValidationErrors(): HTMLSpanElement[] {
+    return Array.from(hostFixture.nativeElement.querySelectorAll('.map-toolbar__errors .map-toolbar__error'));
   }
 
   describe('Draw button', () => {
@@ -158,20 +158,22 @@ describe('MapToolbarComponent', () => {
       expect(host.submitCalled).toBe(true);
     });
 
-    it('should show "Submitting..." text when submitting', () => {
+    it('should show "Zapisuję..." text when submitting', () => {
       host.hasPolygon.set(true);
       host.isValid.set(true);
       host.isSubmitting.set(true);
       hostFixture.detectChanges();
-      expect(getSubmitButton().textContent?.trim()).toBe('Submitting...');
+      const label = getSubmitButton().querySelector('.map-toolbar__label');
+      expect(label?.textContent?.trim()).toBe('Zapisuję...');
     });
 
-    it('should show "Submit" text when not submitting', () => {
+    it('should show "Zapisz" text when not submitting', () => {
       host.hasPolygon.set(true);
       host.isValid.set(true);
       host.isSubmitting.set(false);
       hostFixture.detectChanges();
-      expect(getSubmitButton().textContent?.trim()).toBe('Submit');
+      const label = getSubmitButton().querySelector('.map-toolbar__label');
+      expect(label?.textContent?.trim()).toBe('Zapisz');
     });
   });
 
@@ -179,7 +181,7 @@ describe('MapToolbarComponent', () => {
     it('should not display errors when validationErrors is empty', () => {
       host.validationErrors.set([]);
       hostFixture.detectChanges();
-      const errorContainer = hostFixture.nativeElement.querySelector('.validation-errors');
+      const errorContainer = hostFixture.nativeElement.querySelector('.map-toolbar__errors');
       expect(errorContainer).toBeNull();
     });
 

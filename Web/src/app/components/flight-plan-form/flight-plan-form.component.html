@@ -36,6 +36,26 @@
 
   <!-- Dynamic fields -->
   <div class="fpf__fields">
+    @if (mode() === 'Grid') {
+      <!-- Camera Preset dropdown (Grid mode only) -->
+      <div class="fpf__field">
+        <div class="fpf__label-row">
+          <label for="fpf-camera-preset" class="fpf__label">Preset kamery</label>
+        </div>
+        <select
+          id="fpf-camera-preset"
+          class="fpf__input fpf__select"
+          [disabled]="!hasSelectedArea()"
+          [value]="selectedPresetIndex()"
+          (change)="onPresetChange($event)"
+        >
+          @for (preset of cameraPresets; track preset.label; let i = $index) {
+            <option [value]="i">{{ preset.label }}</option>
+          }
+        </select>
+      </div>
+    }
+
     @for (field of activeFields(); track field.id) {
       <div class="fpf__field">
         <div class="fpf__label-row">
@@ -63,18 +83,66 @@
             >{{ field.tooltip }}</span>
           </button>
         </div>
-        <input
-          [id]="'fpf-' + field.id"
-          type="number"
-          class="fpf__input"
-          [class.fpf__input--invalid]="isFieldInvalid(field.id)"
-          [formControlName]="field.id"
-          [attr.aria-describedby]="getAriaDescribedBy(field.id)"
-          [attr.aria-invalid]="isFieldInvalid(field.id)"
-          [attr.aria-required]="field.required"
-          [disabled]="!hasSelectedArea()"
-          (blur)="markFieldTouched(field.id)"
-        />
+
+        <!-- Slider fields -->
+        @if (field.useSlider) {
+          <div class="fpf__slider-row">
+            <input
+              [id]="'fpf-' + field.id"
+              type="range"
+              class="fpf__slider"
+              [formControlName]="field.id"
+              [min]="field.min"
+              [max]="field.max"
+              [step]="field.step || 1"
+              [attr.aria-describedby]="getAriaDescribedBy(field.id)"
+              [attr.aria-valuemin]="field.min"
+              [attr.aria-valuemax]="field.max"
+              [attr.aria-valuenow]="activeForm().get(field.id)?.value"
+              [disabled]="!hasSelectedArea()"
+            />
+            <span class="fpf__slider-value">{{ activeForm().get(field.id)?.value ?? '–' }}</span>
+          </div>
+        } @else if (field.useCompass) {
+          <!-- Compass direction selector -->
+          <div class="fpf__compass" role="group" [attr.aria-label]="field.label">
+            <button
+              type="button"
+              class="fpf__compass-btn"
+              [class.fpf__compass-btn--active]="getHeadingValue() === null"
+              [disabled]="!hasSelectedArea()"
+              (click)="setHeading(null)"
+              title="Automatyczny (optymalny)"
+            >Auto</button>
+            @for (dir of compassDirections; track dir.label) {
+              <button
+                type="button"
+                class="fpf__compass-btn"
+                [class.fpf__compass-btn--active]="getHeadingValue() === dir.value"
+                [disabled]="!hasSelectedArea()"
+                (click)="setHeading(dir.value)"
+                [title]="dir.label + ' (' + dir.value + '°)'"
+              >{{ dir.label }}</button>
+            }
+          </div>
+        } @else {
+          <!-- Regular number input -->
+          <input
+            [id]="'fpf-' + field.id"
+            type="number"
+            class="fpf__input"
+            [class.fpf__input--invalid]="isFieldInvalid(field.id)"
+            [class.fpf__input--readonly]="mode() === 'Grid' && isCameraField(field.id) && cameraFieldsReadonly()"
+            [formControlName]="field.id"
+            [attr.aria-describedby]="getAriaDescribedBy(field.id)"
+            [attr.aria-invalid]="isFieldInvalid(field.id)"
+            [attr.aria-required]="field.required"
+            [disabled]="!hasSelectedArea()"
+            [readonly]="mode() === 'Grid' && isCameraField(field.id) && cameraFieldsReadonly()"
+            (blur)="markFieldTouched(field.id)"
+          />
+        }
+
         @if (isFieldInvalid(field.id)) {
           <span
             [id]="'fpf-error-' + field.id"

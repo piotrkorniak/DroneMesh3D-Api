@@ -89,21 +89,22 @@ describe('FlightPlanFormComponent', () => {
     expect(form.classList.contains('fpf--disabled')).toBeFalse();
   });
 
-  // --- Test 4: Range validation shows error on blur for out-of-range values ---
-  it('should show range validation error on blur for out-of-range values', () => {
+  // --- Test 4: Range validation shows error for out-of-range values (slider fields cannot go out of range, test on non-slider field) ---
+  it('should show range validation error for out-of-range camera field values', () => {
     selectionState.selectedAreaId.set('area-1');
+    // Select "Własne ustawienia" preset to make camera fields editable
+    component.onPresetChange({ target: { value: '6' } } as unknown as Event);
     fixture.detectChanges();
 
-    // Set altitudeM to out-of-range value (range is 20-400)
-    const altitudeControl = component.gridForm.get('altitudeM')!;
-    altitudeControl.setValue(500);
-    component.markFieldTouched('altitudeM');
+    // Set sensorWidthMm to out-of-range value (range is 1-100)
+    const sensorControl = component.gridForm.get('sensorWidthMm')!;
+    sensorControl.setValue(200);
+    component.markFieldTouched('sensorWidthMm');
     fixture.detectChanges();
 
-    const errorEl = fixture.nativeElement.querySelector('#fpf-error-altitudeM');
+    const errorEl = fixture.nativeElement.querySelector('#fpf-error-sensorWidthMm');
     expect(errorEl).toBeTruthy();
-    expect(errorEl.textContent).toContain('20');
-    expect(errorEl.textContent).toContain('400');
+    expect(errorEl.textContent).toContain('1–100');
   });
 
   // --- Test 5: Required field shows "Pole wymagane" error when empty and touched ---
@@ -166,13 +167,13 @@ describe('FlightPlanFormComponent', () => {
     expect(request.areaId).toBe('area-1');
     expect(request.mode).toBe('Grid');
     expect(request.grid).toBeTruthy();
-    expect(request.grid!.altitudeM).toBe(100);
-    expect(request.grid!.camera.sensorWidthMm).toBe(13.2);
-    expect(request.grid!.camera.focalLengthMm).toBe(8.8);
-    expect(request.grid!.camera.imageWidthPx).toBe(4000);
-    expect(request.grid!.camera.imageHeightPx).toBe(3000);
-    expect(request.grid!.frontOverlapPercent).toBe(70);
-    expect(request.grid!.sideOverlapPercent).toBe(65);
+    expect(request.grid!.altitudeM).toBe(80);
+    expect(request.grid!.camera.sensorWidthMm).toBe(9.7);
+    expect(request.grid!.camera.focalLengthMm).toBe(6.7);
+    expect(request.grid!.camera.imageWidthPx).toBe(4032);
+    expect(request.grid!.camera.imageHeightPx).toBe(3024);
+    expect(request.grid!.frontOverlapPercent).toBe(78);
+    expect(request.grid!.sideOverlapPercent).toBe(70);
     expect(request.grid!.headingDegrees).toBeNull();
     expect(request.poi).toBeNull();
   });

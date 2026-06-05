@@ -11,6 +11,7 @@ import { SelectionStateService } from '../../services/selection-state.service';
 import { RelativeTimePipe } from '../../pipes/relative-time.pipe';
 import { SkeletonComponent } from '../skeleton/skeleton.component';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
+import { ExportDialogComponent } from '../export-dialog/export-dialog.component';
 import { sortByCreatedAtDesc } from '../../utils/sort-by-date';
 import { formatFlightTime } from '../../utils/format-flight-time';
 import { Subscription } from 'rxjs';
@@ -24,7 +25,7 @@ import { Subscription } from 'rxjs';
   selector: 'app-flight-plan-list',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RelativeTimePipe, SkeletonComponent, EmptyStateComponent],
+  imports: [RelativeTimePipe, SkeletonComponent, EmptyStateComponent, ExportDialogComponent],
   templateUrl: './flight-plan-list.component.html',
   styleUrl: './flight-plan-list.component.scss',
 })
@@ -112,6 +113,10 @@ export class FlightPlanListComponent {
   onExportClick(event: Event, planId: string): void {
     event.stopPropagation();
     this.exportTriggeredPlanId.set(planId);
+  }
+
+  closeExportDialog(): void {
+    this.exportTriggeredPlanId.set(null);
   }
 
   onKeydown(event: KeyboardEvent): void {

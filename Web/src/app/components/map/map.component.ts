@@ -32,13 +32,14 @@ import { FlightPathVisualizationService } from '../../services/flight-path-visua
 import { CreateAreaRequest } from '../../api/models/create-area-request';
 import { ValidationResult } from '../../models/validation';
 import { MapToolbarComponent } from '../map-toolbar/map-toolbar.component';
+import { MapSearchComponent, LocationSelectedEvent } from '../map-search/map-search.component';
 
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
   styleUrl: './map.component.scss',
   standalone: true,
-  imports: [MapToolbarComponent],
+  imports: [MapToolbarComponent, MapSearchComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MapComponent implements OnInit, OnDestroy {
@@ -298,5 +299,16 @@ export class MapComponent implements OnInit, OnDestroy {
 
   getMap(): Map {
     return this.map;
+  }
+
+  flyToLocation(event: LocationSelectedEvent): void {
+    const view = this.map?.getView();
+    if (!view) return;
+
+    view.animate({
+      center: fromLonLat([event.lon, event.lat]),
+      zoom: 16,
+      duration: 500,
+    });
   }
 }
