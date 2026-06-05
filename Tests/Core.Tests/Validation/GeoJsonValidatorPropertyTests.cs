@@ -46,7 +46,7 @@ public sealed class GeoJsonValidatorPropertyTests
     ///     Property 4: Valid structure (type=Polygon, non-empty rings, all points ≥2 values) should be accepted.
     /// </summary>
     [Property(Arbitrary = [typeof(ValidCoordinatesArbitraries)])]
-    public bool ValidStructure_AlwaysReturnsTrue(double[][][] coordinates) =>
+    public bool ValidStructure_AlwaysReturnsTrue(double[][]?[] coordinates) =>
         GeoJsonValidator.IsValidPolygon(GeoJsonType.Polygon, coordinates);
 
     #region Custom Arbitrary Classes
@@ -117,7 +117,7 @@ public sealed class GeoJsonValidatorPropertyTests
 
     public sealed class ValidCoordinatesArbitraries
     {
-        public static Arbitrary<double[][][]> Array()
+        public static Arbitrary<double[][]?[]> Array()
         {
             // Points with at least 2 coordinate values (some with optional altitude)
             var point2d = Gen.Choose(-180, 180).Two()
@@ -132,7 +132,8 @@ public sealed class GeoJsonValidatorPropertyTests
 
             // 1-2 rings
             var gen = Gen.Choose(1, 2).SelectMany(ringCount =>
-                validRing.ArrayOf(ringCount));
+                validRing.ArrayOf(ringCount)
+                    .Select(rings => rings.Select(r => (double[][]?)r).ToArray()));
 
             return gen.ToArbitrary();
         }
