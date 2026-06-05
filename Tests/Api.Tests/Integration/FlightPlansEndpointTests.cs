@@ -13,7 +13,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DroneMesh3D.Api.Tests.Integration;
 
-[Trait("Category", "Integration")]
 public sealed class FlightPlansEndpointTests : IClassFixture<FlightPlansEndpointTests.FlightPlansApiFactory>, IDisposable
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -325,14 +324,15 @@ public sealed class FlightPlansEndpointTests : IClassFixture<FlightPlansEndpoint
 
                 // Use PostgreSQL with a test-specific database name to avoid conflicts
                 var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__Default")
-                                       ?? "Host=localhost;Database=dronemesh3d_test;Username=postgres;Password=YourStr0ngP@ssword";
+                                       ?? "Host=localhost;Database=dronemesh3d_test_flightplans;Username=postgres;Password=YourStr0ngP@ssword";
 
                 services.AddDbContext<AppDbContext>(options => { options.UseNpgsql(connectionString, x => x.UseNetTopologySuite()); });
 
-                // Ensure schema is created
+                // Ensure schema is created (drop first to handle schema changes)
                 var sp = services.BuildServiceProvider();
                 using var scope = sp.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                db.Database.EnsureDeleted();
                 db.Database.EnsureCreated();
             });
 

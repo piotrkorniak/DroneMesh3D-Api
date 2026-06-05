@@ -16,9 +16,9 @@ echo "Building Angular app..."
 
 echo "=== Pre-push: Tests ==="
 
-# --- Backend tests (skip integration tests that need DB) ---
+# --- Backend tests ---
 echo "Running .NET tests..."
-dotnet test DroneMesh3D.slnx --configuration Release --no-build --nologo -v q --filter "Category!=Integration"
+dotnet test DroneMesh3D.slnx --configuration Release --no-build --nologo -v q
 
 # --- Frontend tests ---
 echo "Running Angular tests..."
