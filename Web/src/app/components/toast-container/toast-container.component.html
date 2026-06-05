@@ -1,0 +1,46 @@
+<div class="toast-container">
+  @for (toast of visibleToasts(); track toast.id) {
+    <div
+      class="toast toast--{{ toast.type }}"
+      [class.toast--dismissing]="false"
+      [attr.role]="toastRole(toast)"
+      [attr.aria-live]="toastAriaLive(toast)"
+      [attr.title]="toast.message.length > 150 ? toast.message : null"
+    >
+      <div class="toast__icon" aria-hidden="true">
+        @switch (toast.type) {
+          @case ('success') {
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="2"/>
+              <path d="M6 10l3 3 5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          }
+          @case ('error') {
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="2"/>
+              <path d="M7 7l6 6M13 7l-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          }
+          @case ('info') {
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="2"/>
+              <path d="M10 9v5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="10" cy="6.5" r="1" fill="currentColor"/>
+            </svg>
+          }
+        }
+      </div>
+      <span class="toast__message">{{ displayMessage(toast) }}</span>
+      <button
+        class="toast__close"
+        type="button"
+        aria-label="Dismiss notification"
+        (click)="dismiss(toast.id)"
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  }
+</div>

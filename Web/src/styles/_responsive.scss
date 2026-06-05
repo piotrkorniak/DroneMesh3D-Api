@@ -1,0 +1,90 @@
+// Responsive Layout Styles
+// Breakpoints: tablet (768-1023px), mobile (<768px), desktop (>=1024px)
+// Handles overlay behavior, touch support, and orientation changes.
+
+// Breakpoint variables (mirrors --ds-breakpoint-* tokens)
+$breakpoint-tablet: 768px;
+$breakpoint-desktop: 1024px;
+
+// ============================================================
+// Tablet (768px - 1023px): Side panel as collapsible overlay
+// ============================================================
+@media (min-width: $breakpoint-tablet) and (max-width: $breakpoint-desktop - 1) {
+  // Ensure the map fills the full width on tablet since panel overlays
+  app-map {
+    flex: 1;
+    width: 100%;
+  }
+
+  // Forms in narrow panels should use single-column layout
+  .flight-plan-form__fields {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+// ============================================================
+// Mobile (<768px): Side panel as full-screen overlay
+// ============================================================
+@media (max-width: $breakpoint-tablet - 1) {
+  // Map always takes full viewport on mobile
+  app-map {
+    flex: 1;
+    width: 100%;
+  }
+
+  // Single-column form layout on mobile
+  .flight-plan-form__fields {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+// ============================================================
+// Touch support
+// ============================================================
+// Pinch-to-zoom and two-finger pan are default OpenLayers behaviors.
+// Ensure nothing blocks touch events on the map canvas.
+@media (pointer: coarse) {
+  app-map {
+    touch-action: none; // Let OL handle all touch gestures
+  }
+
+  // Ensure minimum tap target size for all interactive elements
+  button,
+  [role="option"],
+  [role="radio"],
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+// ============================================================
+// Orientation change handling
+// ============================================================
+// CSS is inherently responsive to orientation changes via media queries.
+// The layout re-evaluates automatically when viewport dimensions change.
+// The SidePanelComponent's HostListener('window:resize') handles
+// the JS-side recalculation within 300ms (tied to CSS transition duration).
+
+// ============================================================
+// Swipe-to-close support (CSS portion)
+// ============================================================
+// The swipe gesture detection is handled in SidePanelComponent via touch events.
+// The CSS transition on .side-panel--mobile and .side-panel--tablet
+// (transform: translateX) already supports smooth swipe-to-close animation.
+
+// ============================================================
+// Reduced motion preference
+// ============================================================
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

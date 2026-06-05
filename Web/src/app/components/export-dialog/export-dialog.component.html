@@ -1,0 +1,87 @@
+<div
+  class="export-dialog__backdrop"
+  (click)="close()"
+  aria-hidden="true"
+></div>
+<div
+  class="export-dialog"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-labelledby]="'export-dialog-title'"
+  (keydown)="onKeydown($event)"
+  #dialogEl
+>
+  <div class="export-dialog__header">
+    <h2 id="export-dialog-title" class="export-dialog__title">Eksportuj plan lotu</h2>
+    <button
+      class="export-dialog__close-btn"
+      aria-label="Zamknij"
+      (click)="close()"
+    >
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <line x1="3" y1="3" x2="13" y2="13" stroke="currentColor" stroke-width="2"/>
+        <line x1="13" y1="3" x2="3" y2="13" stroke="currentColor" stroke-width="2"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="export-dialog__body">
+    <fieldset class="export-dialog__format-group">
+      <legend class="export-dialog__format-legend">Format pliku</legend>
+
+      <label class="export-dialog__format-option">
+        <input
+          type="radio"
+          name="exportFormat"
+          value="LitchiCsv"
+          [checked]="selectedFormat() === 'LitchiCsv'"
+          (change)="selectFormat('LitchiCsv')"
+        />
+        Litchi CSV
+      </label>
+
+      <label class="export-dialog__format-option">
+        <input
+          type="radio"
+          name="exportFormat"
+          value="Kml"
+          [checked]="selectedFormat() === 'Kml'"
+          (change)="selectFormat('Kml')"
+        />
+        KML
+      </label>
+
+      <label class="export-dialog__format-option">
+        <input
+          type="radio"
+          name="exportFormat"
+          value="DjiWpml"
+          [checked]="selectedFormat() === 'DjiWpml'"
+          (change)="selectFormat('DjiWpml')"
+        />
+        DJI WPML
+      </label>
+    </fieldset>
+
+    @if (error()) {
+      <div class="export-dialog__error" role="alert">
+        {{ error() }}
+      </div>
+    }
+  </div>
+
+  <div class="export-dialog__footer">
+    <button
+      class="export-dialog__download-btn"
+      [disabled]="exporting()"
+      (click)="download()"
+    >
+      @if (exporting()) {
+        <span class="export-dialog__spinner" aria-hidden="true"></span>
+        Pobieranie...
+      } @else {
+        Pobierz
+      }
+    </button>
+  </div>
+</div>

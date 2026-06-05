@@ -1,1 +1,10 @@
-<app-map/>
+<div class="app-main-content" [attr.aria-hidden]="isModalOpen() ? 'true' : null">
+  <app-side-panel />
+  <app-map [class.panel-expanded]="panelState.isExpanded()" />
+</div>
+<app-toast-container />
+
+<!-- Live region for dynamic list updates (Requirement 11.8) -->
+<div class="sr-only" aria-live="polite" aria-atomic="true" id="list-update-announcer">
+  {{ liveAnnouncement() }}
+</div>

@@ -17,6 +17,7 @@ import OSM from 'ol/source/OSM';
 import Draw from 'ol/interaction/Draw';
 import Modify from 'ol/interaction/Modify';
 import { fromLonLat, toLonLat } from 'ol/proj';
+import { boundingExtent } from 'ol/extent';
 import Polygon from 'ol/geom/Polygon';
 import Style from 'ol/style/Style';
 import Stroke from 'ol/style/Stroke';
@@ -25,6 +26,8 @@ import { finalize } from 'rxjs';
 
 import { PolygonValidatorService } from '../../services/polygon-validator.service';
 import { AreaService } from '../../services/area.service';
+import { SelectionStateService } from '../../services/selection-state.service';
+import { FlightPathVisualizationService } from '../../services/flight-path-visualization.service';
 import { CreateAreaRequest } from '../../api/models/create-area-request';
 import { ValidationResult } from '../../models/validation';
 import { MapToolbarComponent } from '../map-toolbar/map-toolbar.component';
@@ -40,6 +43,8 @@ import { MapToolbarComponent } from '../map-toolbar/map-toolbar.component';
 export class MapComponent implements OnInit, OnDestroy {
   private readonly polygonValidator = inject(PolygonValidatorService);
   private readonly areaService = inject(AreaService);
+  private readonly selectionState = inject(SelectionStateService);
+  private readonly flightPathViz = inject(FlightPathVisualizationService);
 
   private map!: Map;
   readonly vectorSource = new VectorSource();
@@ -83,6 +88,32 @@ export class MapComponent implements OnInit, OnDestroy {
     }
   });
 
+  // React to selectedArea changes: animate map to fit polygon bounds
+  private readonly selectedAreaEffect = effect(() => {
+    const area = this.selectionState.selectedArea();
+    if (!area || !area.geometry || !area.geometry.coordinates) return;
+
+    const coordinates = area.geometry.coordinates[0]; // outer ring
+    if (!coordinates || coordinates.length === 0) return;
+
+    // Transform coordinates from EPSG:4326 to map projection (EPSG:3857)
+    const projectedCoords = coordinates.map(coord => fromLonLat(coord as [number, number]));
+
+    // Create extent from all projected coordinates
+    const extent = boundingExtent(projectedCoords);
+
+    // Animate map view to fit the extent with 10% padding, 500ms duration
+    const view = this.map?.getView();
+    if (view) {
+      const size = this.map.getSize();
+      const paddingValue = size ? Math.min(size[0], size[1]) * 0.1 : 50;
+      view.fit(extent, {
+        padding: [paddingValue, paddingValue, paddingValue, paddingValue],
+        duration: 500,
+      });
+    }
+  });
+
   ngOnInit(): void {
     this.initializeMap();
   }
@@ -99,6 +130,7 @@ export class MapComponent implements OnInit, OnDestroy {
           source: new OSM(),
         }),
         this.vectorLayer,
+        this.flightPathViz.flightPathLayer,
       ],
       view: new View({
         projection: 'EPSG:3857',
@@ -106,6 +138,9 @@ export class MapComponent implements OnInit, OnDestroy {
         zoom: 7,
       }),
     });
+
+    // Provide the map view reference to FlightPathVisualizationService
+    this.flightPathViz.setMapView(this.map.getView());
   }
 
   startDrawing(): void {

@@ -1,0 +1,153 @@
+:host {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.export-dialog__backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--ds-color-overlay, hsla(220, 22%, 8%, 0.5));
+}
+
+.export-dialog {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  background: var(--ds-color-surface, hsl(220, 20%, 12%));
+  border-radius: var(--ds-radius-lg, 12px);
+  box-shadow: var(--ds-shadow-lg, 0 8px 24px hsla(0, 0%, 0%, 0.5));
+  padding: var(--ds-spacing-lg, 24px);
+  outline: none;
+}
+
+.export-dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--ds-spacing-md, 16px);
+}
+
+.export-dialog__title {
+  margin: 0;
+  font-family: var(--ds-font-family, sans-serif);
+  font-size: var(--ds-font-size-lg, 1.125rem);
+  font-weight: var(--ds-font-weight-semibold, 600);
+  color: var(--ds-color-text-primary, hsl(0, 0%, 95%));
+}
+
+.export-dialog__close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--ds-radius-sm, 4px);
+  background: transparent;
+  color: var(--ds-color-text-secondary, hsl(0, 0%, 72%));
+  cursor: pointer;
+  transition: background var(--ds-transition-fast, 150ms);
+}
+
+.export-dialog__close-btn:hover {
+  background: var(--ds-color-surface-elevated, hsl(220, 18%, 16%));
+}
+
+.export-dialog__close-btn:focus-visible {
+  outline: 2px solid var(--ds-color-primary, hsl(210, 100%, 56%));
+  outline-offset: 2px;
+}
+
+.export-dialog__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-spacing-md, 16px);
+}
+
+.export-dialog__format-group {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.export-dialog__format-legend {
+  font-family: var(--ds-font-family, sans-serif);
+  font-size: var(--ds-font-size-sm, 0.875rem);
+  font-weight: var(--ds-font-weight-medium, 500);
+  color: var(--ds-color-text-secondary, hsl(0, 0%, 72%));
+  margin-bottom: var(--ds-spacing-sm, 8px);
+}
+
+.export-dialog__format-option {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-spacing-sm, 8px);
+  padding: var(--ds-spacing-xs, 4px) 0;
+  font-family: var(--ds-font-family, sans-serif);
+  font-size: var(--ds-font-size-sm, 0.875rem);
+  color: var(--ds-color-text-primary, hsl(0, 0%, 95%));
+  cursor: pointer;
+}
+
+.export-dialog__error {
+  padding: var(--ds-spacing-sm, 8px) var(--ds-spacing-md, 16px);
+  background: hsla(0, 72%, 51%, 0.1);
+  border: 1px solid var(--ds-color-error, hsl(0, 72%, 51%));
+  border-radius: var(--ds-radius-sm, 4px);
+  font-family: var(--ds-font-family, sans-serif);
+  font-size: var(--ds-font-size-sm, 0.875rem);
+  color: var(--ds-color-error, hsl(0, 72%, 51%));
+}
+
+.export-dialog__footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--ds-spacing-lg, 24px);
+}
+
+.export-dialog__download-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-spacing-sm, 8px);
+  padding: var(--ds-spacing-sm, 8px) var(--ds-spacing-lg, 24px);
+  border: none;
+  border-radius: var(--ds-radius-md, 8px);
+  background: var(--ds-color-primary, hsl(210, 100%, 56%));
+  color: var(--ds-color-background, hsl(220, 22%, 8%));
+  font-family: var(--ds-font-family, sans-serif);
+  font-size: var(--ds-font-size-sm, 0.875rem);
+  font-weight: var(--ds-font-weight-semibold, 600);
+  cursor: pointer;
+  transition: background var(--ds-transition-fast, 150ms);
+}
+
+.export-dialog__download-btn:hover:not(:disabled) {
+  background: var(--ds-color-primary-hover, hsl(210, 100%, 64%));
+}
+
+.export-dialog__download-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.export-dialog__download-btn:focus-visible {
+  outline: 2px solid var(--ds-color-primary, hsl(210, 100%, 56%));
+  outline-offset: 2px;
+}
+
+.export-dialog__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

@@ -1,0 +1,161 @@
+<!-- Mobile backdrop -->
+@if (isMobileOverlayVisible()) {
+  <div
+    class="side-panel__backdrop"
+    (click)="closeMobileOverlay()"
+    aria-hidden="true"
+  ></div>
+}
+
+<!-- Tablet FAB trigger -->
+@if (isTablet() && !panelState.isExpanded()) {
+  <button
+    class="side-panel__fab"
+    type="button"
+    aria-label="Toggle side panel"
+    (click)="panelState.expand()"
+  >
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </button>
+}
+
+<!-- Main panel -->
+<aside
+  class="side-panel"
+  [class.side-panel--expanded]="panelState.isExpanded()"
+  [class.side-panel--collapsed]="!panelState.isExpanded()"
+  [class.side-panel--mobile]="isMobile()"
+  [class.side-panel--tablet]="isTablet()"
+  [class.side-panel--visible]="isPanelVisible()"
+  role="complementary"
+  aria-label="Side panel"
+>
+  <!-- Panel header with toggle -->
+  <div class="side-panel__header">
+    <button
+      class="side-panel__toggle"
+      type="button"
+      aria-label="Toggle side panel"
+      [attr.aria-expanded]="panelState.isExpanded()"
+      (click)="togglePanel()"
+    >
+      @if (panelState.isExpanded()) {
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M13 4l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      } @else {
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M7 4l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      }
+    </button>
+
+    <!-- Mobile close button -->
+    @if (isMobile() && panelState.isExpanded()) {
+      <button
+        class="side-panel__close"
+        type="button"
+        aria-label="Close side panel"
+        (click)="closeMobileOverlay()"
+      >
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M5 5l10 10M15 5l-10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    }
+  </div>
+
+  <!-- Panel content (sections) -->
+  <div class="side-panel__content">
+    <!-- Area List Section -->
+    <section class="side-panel__section">
+      <button
+        class="side-panel__section-header"
+        type="button"
+        [attr.aria-expanded]="!panelState.sectionCollapsed.Area_List()"
+        (click)="panelState.toggleSection('Area_List')"
+      >
+        <svg class="side-panel__section-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M3 3h14v14H3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M7 7h6v6H7z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+        @if (panelState.isExpanded()) {
+          <span class="side-panel__section-title">Obszary</span>
+          <svg class="side-panel__section-chevron" [class.side-panel__section-chevron--collapsed]="panelState.sectionCollapsed.Area_List()" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        }
+      </button>
+      @if (!panelState.sectionCollapsed.Area_List() && panelState.isExpanded()) {
+        <div class="side-panel__section-content">
+          <!-- AreaListComponent will be placed here -->
+          <div class="side-panel__placeholder" aria-label="Area list placeholder">
+            <span class="side-panel__placeholder-text">Area List</span>
+          </div>
+        </div>
+      }
+    </section>
+
+    <!-- Flight Plan Form Section -->
+    <section class="side-panel__section">
+      <button
+        class="side-panel__section-header"
+        type="button"
+        [attr.aria-expanded]="!panelState.sectionCollapsed.Flight_Plan_Form()"
+        (click)="panelState.toggleSection('Flight_Plan_Form')"
+      >
+        <svg class="side-panel__section-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M4 4h12v12H4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M7 9h6M7 12h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        @if (panelState.isExpanded()) {
+          <span class="side-panel__section-title">Plan lotu</span>
+          <svg class="side-panel__section-chevron" [class.side-panel__section-chevron--collapsed]="panelState.sectionCollapsed.Flight_Plan_Form()" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        }
+      </button>
+      @if (!panelState.sectionCollapsed.Flight_Plan_Form() && panelState.isExpanded()) {
+        <div class="side-panel__section-content">
+          <!-- FlightPlanFormComponent will be placed here -->
+          <div class="side-panel__placeholder" aria-label="Flight plan form placeholder">
+            <span class="side-panel__placeholder-text">Flight Plan Form</span>
+          </div>
+        </div>
+      }
+    </section>
+
+    <!-- Flight Plan List Section -->
+    <section class="side-panel__section">
+      <button
+        class="side-panel__section-header"
+        type="button"
+        [attr.aria-expanded]="!panelState.sectionCollapsed.Flight_Plan_List()"
+        (click)="panelState.toggleSection('Flight_Plan_List')"
+      >
+        <svg class="side-panel__section-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M4 5h12M4 10h12M4 15h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="4" cy="5" r="1" fill="currentColor"/>
+          <circle cx="4" cy="10" r="1" fill="currentColor"/>
+          <circle cx="4" cy="15" r="1" fill="currentColor"/>
+        </svg>
+        @if (panelState.isExpanded()) {
+          <span class="side-panel__section-title">Historia planów</span>
+          <svg class="side-panel__section-chevron" [class.side-panel__section-chevron--collapsed]="panelState.sectionCollapsed.Flight_Plan_List()" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        }
+      </button>
+      @if (!panelState.sectionCollapsed.Flight_Plan_List() && panelState.isExpanded()) {
+        <div class="side-panel__section-content">
+          <!-- FlightPlanListComponent will be placed here -->
+          <div class="side-panel__placeholder" aria-label="Flight plan list placeholder">
+            <span class="side-panel__placeholder-text">Flight Plan List</span>
+          </div>
+        </div>
+      }
+    </section>
+  </div>
+</aside>

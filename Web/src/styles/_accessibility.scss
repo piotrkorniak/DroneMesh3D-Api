@@ -1,0 +1,87 @@
+// Accessibility Styles
+// Global :focus-visible indicators, screen-reader utilities, and focus management.
+
+// ============================================================
+// Focus indicators (Requirement 11.1)
+// 2px solid outline using primary color with 2px offset
+// Only visible during keyboard navigation (:focus-visible)
+// ============================================================
+
+// Global rule for all interactive elements
+button,
+a,
+input,
+select,
+textarea,
+[tabindex],
+[role="option"],
+[role="listbox"],
+[role="button"],
+[role="radio"],
+[role="checkbox"],
+[role="tab"],
+[role="menuitem"],
+[role="link"] {
+  &:focus-visible {
+    outline: 2px solid var(--ds-color-primary);
+    outline-offset: 2px;
+  }
+
+  // Suppress focus outlines on mouse/pointer interactions
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
+}
+
+// ============================================================
+// Screen-reader only utility class
+// Visually hidden but accessible to assistive technologies
+// ============================================================
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// ============================================================
+// aria-hidden content should not be focusable
+// ============================================================
+[aria-hidden="true"] {
+  // Prevent hidden content from receiving focus via pointer
+  pointer-events: none;
+
+  // Exception: backdrop overlays need click events to close modals
+  &.side-panel__backdrop,
+  &.export-dialog__backdrop {
+    pointer-events: auto;
+  }
+}
+
+// ============================================================
+// Skip to main content link (optional enhancement)
+// ============================================================
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  z-index: 10000;
+  padding: var(--ds-spacing-sm) var(--ds-spacing-md);
+  background: var(--ds-color-primary);
+  color: var(--ds-color-background);
+  font-family: var(--ds-font-family);
+  font-size: var(--ds-font-size-sm);
+  font-weight: var(--ds-font-weight-semibold);
+  text-decoration: none;
+  border-radius: var(--ds-radius-sm);
+  transition: top var(--ds-transition-fast);
+
+  &:focus {
+    top: var(--ds-spacing-sm);
+  }
+}

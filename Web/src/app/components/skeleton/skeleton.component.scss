@@ -1,0 +1,35 @@
+:host {
+  display: block;
+}
+
+.skeleton-line {
+  border-radius: var(--ds-radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--ds-color-surface) 25%,
+    var(--ds-color-surface-elevated) 50%,
+    var(--ds-color-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+.skeleton-line + .skeleton-line {
+  margin-top: var(--ds-spacing-sm);
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-line {
+    animation: none;
+    background: var(--ds-color-surface-elevated);
+  }
+}

@@ -1,0 +1,74 @@
+@if (loading()) {
+  <div class="area-list__loading">
+    @for (i of skeletonItems; track i) {
+      <app-skeleton [lines]="2" height="1.25rem" />
+    }
+  </div>
+} @else if (error()) {
+  <div class="area-list__error" role="alert">
+    <p class="area-list__error-message">{{ error() }}</p>
+    <button class="area-list__retry-btn" (click)="loadAreas()">
+      Ponów
+    </button>
+  </div>
+} @else if (areas().length === 0) {
+  <app-empty-state
+    icon="map"
+    heading="Brak obszarów"
+    description="Narysuj polygon na mapie, aby utworzyć pierwszy obszar"
+  />
+} @else {
+  <div
+    class="area-list__container"
+    [class.area-list__container--virtual]="useVirtualScroll()"
+    role="listbox"
+    [attr.aria-activedescendant]="activeDescendantId()"
+    [attr.aria-label]="'Lista obszarów'"
+    tabindex="0"
+    (keydown)="onKeydown($event)"
+    (scroll)="useVirtualScroll() && onScroll($event)"
+  >
+    @if (useVirtualScroll()) {
+      <div class="area-list__spacer" [style.height.px]="totalHeight()"></div>
+      <div class="area-list__virtual-content" [style.transform]="'translateY(' + offsetY() + 'px)'">
+        @for (item of visibleItems(); track item.area.id) {
+          <div
+            [id]="'area-item-' + item.area.id"
+            class="area-list__item"
+            [class.area-list__item--selected]="selectionState.selectedAreaId() === item.area.id"
+            [class.area-list__item--focused]="focusedIndex() === item.index"
+            role="option"
+            [attr.aria-selected]="selectionState.selectedAreaId() === item.area.id"
+            tabindex="-1"
+            (click)="selectArea(item.area.id, item.index)"
+            (keydown.enter)="selectArea(item.area.id, item.index)"
+            (keydown.space)="selectArea(item.area.id, item.index)"
+          >
+            <span class="area-list__number">{{ item.index + 1 }}.</span>
+            <span class="area-list__date">{{ item.area.createdAt | relativeTime }}</span>
+            <span class="area-list__hectares">{{ getHectares(item.area) }} ha</span>
+          </div>
+        }
+      </div>
+    } @else {
+      @for (area of areas(); track area.id; let i = $index) {
+        <div
+          [id]="'area-item-' + area.id"
+          class="area-list__item"
+          [class.area-list__item--selected]="selectionState.selectedAreaId() === area.id"
+          [class.area-list__item--focused]="focusedIndex() === i"
+          role="option"
+          [attr.aria-selected]="selectionState.selectedAreaId() === area.id"
+          tabindex="-1"
+          (click)="selectArea(area.id, i)"
+          (keydown.enter)="selectArea(area.id, i)"
+          (keydown.space)="selectArea(area.id, i)"
+        >
+          <span class="area-list__number">{{ i + 1 }}.</span>
+          <span class="area-list__date">{{ area.createdAt | relativeTime }}</span>
+          <span class="area-list__hectares">{{ getHectares(area) }} ha</span>
+        </div>
+      }
+    }
+  </div>
+}

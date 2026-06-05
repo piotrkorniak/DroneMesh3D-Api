@@ -1,0 +1,102 @@
+<form
+  class="fpf"
+  [class.fpf--disabled]="!hasSelectedArea()"
+  [formGroup]="activeForm()"
+  (ngSubmit)="onSubmit()"
+  novalidate
+>
+  <!-- Mode segmented control -->
+  <fieldset class="fpf__mode-fieldset">
+    <legend class="fpf__mode-legend">Tryb lotu</legend>
+    <div class="fpf__mode-segmented" role="radiogroup" aria-label="Tryb lotu">
+      <button
+        type="button"
+        class="fpf__mode-btn"
+        [class.fpf__mode-btn--active]="mode() === 'Grid'"
+        role="radio"
+        [attr.aria-checked]="mode() === 'Grid'"
+        [disabled]="!hasSelectedArea()"
+        (click)="setMode('Grid')"
+      >
+        Grid
+      </button>
+      <button
+        type="button"
+        class="fpf__mode-btn"
+        [class.fpf__mode-btn--active]="mode() === 'Poi'"
+        role="radio"
+        [attr.aria-checked]="mode() === 'Poi'"
+        [disabled]="!hasSelectedArea()"
+        (click)="setMode('Poi')"
+      >
+        POI
+      </button>
+    </div>
+  </fieldset>
+
+  <!-- Dynamic fields -->
+  <div class="fpf__fields">
+    @for (field of activeFields(); track field.id) {
+      <div class="fpf__field">
+        <div class="fpf__label-row">
+          <label [for]="'fpf-' + field.id" class="fpf__label">
+            {{ field.label }}
+            @if (field.required) {
+              <span class="fpf__required" aria-hidden="true">*</span>
+            }
+          </label>
+          <button
+            type="button"
+            class="fpf__tooltip-icon"
+            [attr.aria-label]="'Informacja: ' + field.label"
+            [attr.aria-describedby]="'fpf-tooltip-' + field.id"
+            tabindex="0"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
+              <text x="8" y="12" text-anchor="middle" font-size="10" fill="currentColor">?</text>
+            </svg>
+            <span
+              [id]="'fpf-tooltip-' + field.id"
+              class="fpf__tooltip-text"
+              role="tooltip"
+            >{{ field.tooltip }}</span>
+          </button>
+        </div>
+        <input
+          [id]="'fpf-' + field.id"
+          type="number"
+          class="fpf__input"
+          [class.fpf__input--invalid]="isFieldInvalid(field.id)"
+          [formControlName]="field.id"
+          [attr.aria-describedby]="getAriaDescribedBy(field.id)"
+          [attr.aria-invalid]="isFieldInvalid(field.id)"
+          [attr.aria-required]="field.required"
+          [disabled]="!hasSelectedArea()"
+          (blur)="markFieldTouched(field.id)"
+        />
+        @if (isFieldInvalid(field.id)) {
+          <span
+            [id]="'fpf-error-' + field.id"
+            class="fpf__error"
+            role="alert"
+          >{{ getFieldError(field.id) }}</span>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Submit button -->
+  <button
+    type="submit"
+    class="fpf__submit"
+    [disabled]="!hasSelectedArea() || submitting()"
+  >
+    @if (submitting()) {
+      <span class="fpf__spinner" aria-hidden="true"></span>
+      Obliczam...
+    } @else {
+      Generuj trasę
+    }
+  </button>
+</form>
