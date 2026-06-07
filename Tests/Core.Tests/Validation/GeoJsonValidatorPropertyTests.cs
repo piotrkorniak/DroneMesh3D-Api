@@ -110,7 +110,7 @@ public sealed class GeoJsonValidatorPropertyTests
                             return allPoints.ToArray();
                         }))));
 
-            var gen = ringWithShortPoint.Select(ring => new[] { ring });
+            var gen = ringWithShortPoint.Select(ring => new[] { (double[][]?)ring });
             return gen.ToArbitrary();
         }
     }
