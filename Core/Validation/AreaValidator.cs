@@ -76,17 +76,19 @@ public sealed class AreaValidator : IAreaValidator
         var edgeCount = n - 1;
 
         for (var i = 0; i < edgeCount; i++)
-        for (var j = i + 2; j < edgeCount; j++)
         {
-            // Skip adjacent edges (first and last edge are adjacent in a closed polygon)
-            if (i == 0 && j == edgeCount - 1 && IsClosed(ring))
+            for (var j = i + 2; j < edgeCount; j++)
             {
-                continue;
-            }
+                // Skip adjacent edges (first and last edge are adjacent in a closed polygon)
+                if (i == 0 && j == edgeCount - 1 && IsClosed(ring))
+                {
+                    continue;
+                }
 
-            if (SegmentsIntersect(ring[i], ring[i + 1], ring[j], ring[j + 1]))
-            {
-                return true;
+                if (SegmentsIntersect(ring[i], ring[i + 1], ring[j], ring[j + 1]))
+                {
+                    return true;
+                }
             }
         }
 
