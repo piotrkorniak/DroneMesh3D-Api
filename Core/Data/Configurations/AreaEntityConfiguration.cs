@@ -14,5 +14,6 @@ public sealed class AreaEntityConfiguration : IEntityTypeConfiguration<AreaEntit
         entity.Property(e => e.Geometry).HasColumnType("geometry(Polygon, 4326)");
         entity.HasIndex(e => e.Geometry).HasMethod("gist");
         entity.Property(e => e.Name).HasMaxLength(50);
+        entity.Property(e => e.SequentialNumber).UseIdentityByDefaultColumn();
     }
 }

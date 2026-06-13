@@ -42,26 +42,22 @@ public sealed class CreateAreaCommandHandler(
         // 4. Convert to NTS polygon
         var geometry = GeometryConverter.ToPolygon(outerRing);
 
-        // 5. Assign sequential number
-        var maxSeq = await areaRepository.GetMaxSequentialNumberAsync(ct);
-
-        // 6. Normalize name (trim, nullify whitespace-only)
+        // 5. Normalize name (trim, nullify whitespace-only)
         var name = string.IsNullOrWhiteSpace(command.Name) ? null : command.Name.Trim();
         if (name?.Length > 50) name = name[..50];
 
-        // 7. Create and persist entity
+        // 6. Create and persist entity (SequentialNumber assigned by DB identity column)
         var entity = new AreaEntity
         {
             Id = Guid.CreateVersion7(),
             CreatedAt = DateTimeOffset.UtcNow,
             Geometry = geometry,
-            Name = name,
-            SequentialNumber = maxSeq + 1
+            Name = name
         };
 
         await areaRepository.AddAsync(entity, ct);
 
-        // 8. Return response
+        // 7. Return response
         return new AreaResponse(
             entity.Id,
             entity.CreatedAt,
