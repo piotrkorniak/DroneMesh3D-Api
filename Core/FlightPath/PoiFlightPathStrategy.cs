@@ -13,11 +13,24 @@ public sealed class PoiFlightPathStrategy
     private const int MinPhotoCount = 3;
 
     /// <summary>
-    ///     Calculates a POI orbital flight plan for the given parameters.
+    /// <summary>
+    ///     Calculates a POI orbital flight plan for the given request.
     /// </summary>
-    /// <param name="parameters">POI mode flight parameters.</param>
-    /// <returns>A flight plan result with ordered waypoints and statistics.</returns>
-    public FlightPlanResult Calculate(PoiModeParameters parameters, CancellationToken ct = default)
+    public FlightPlanResult Calculate(PoiCalculationRequest request)
+    {
+        var parameters = request.Parameters;
+
+        return request.OrbitShape switch
+        {
+            OrbitShape.Rectangular when request.AreaCoordinates is { Length: >= 4 }
+                => CalculateRectangular(parameters, request.AreaCoordinates),
+            OrbitShape.PolygonFollowing when request.AreaCoordinates is { Length: >= 3 }
+                => CalculatePolygonFollowing(parameters, request.AreaCoordinates),
+            _ => CalculateCircular(parameters)
+        };
+    }
+
+    private FlightPlanResult CalculateCircular(PoiModeParameters parameters)
     {
         // Step 1: Determine photo count
         var photoCount = DeterminePhotoCount(parameters);
@@ -28,7 +41,6 @@ public sealed class PoiFlightPathStrategy
 
         for (var i = 0; i < photoCount; i++)
         {
-            ct.ThrowIfCancellationRequested();
             var bearing = i * angularStep;
 
             // Compute geographic position from center + radius + bearing
@@ -133,5 +145,116 @@ public sealed class PoiFlightPathStrategy
         var coveredArea = Math.PI * parameters.RadiusM * parameters.RadiusM;
 
         return new FlightStatistics(totalDistance, estimatedFlightTime, photoCount, coveredArea);
+    }
+
+    /// <summary>
+    ///     Calculates waypoints distributed along rectangle edges proportional to area bounding box.
+    /// </summary>
+    private FlightPlanResult CalculateRectangular(PoiModeParameters parameters, double[][] areaCoordinates)
+    {
+        var photoCount = DeterminePhotoCount(parameters);
+        var gimbalPitch = ComputeGimbalPitch(parameters);
+
+        // Compute bounding box of area
+        var lats = areaCoordinates.Select(c => c[1]).ToArray();
+        var lons = areaCoordinates.Select(c => c[0]).ToArray();
+        var minLat = lats.Min();
+        var maxLat = lats.Max();
+        var minLon = lons.Min();
+        var maxLon = lons.Max();
+
+        // Scale bounding box by radius offset from center
+        var centerLat = parameters.CenterLatitude;
+        var centerLon = parameters.CenterLongitude;
+        var latOffset = parameters.RadiusM / 111320.0; // approx meters to degrees
+        var lonOffset = parameters.RadiusM / (111320.0 * Math.Cos(centerLat * Math.PI / 180.0));
+
+        // Rectangle corners offset from center
+        var corners = new[]
+        {
+            (centerLat - latOffset, centerLon - lonOffset),
+            (centerLat - latOffset, centerLon + lonOffset),
+            (centerLat + latOffset, centerLon + lonOffset),
+            (centerLat + latOffset, centerLon - lonOffset)
+        };
+
+        // Distribute waypoints along rectangle perimeter
+        var perimeter = 4.0 * 2.0 * (latOffset + lonOffset) * 111320.0; // approximate
+        var waypoints = new List<Waypoint>(photoCount);
+
+        for (var i = 0; i < photoCount; i++)
+        {
+            var t = (double)i / photoCount;
+            var perimPos = t * 4.0; // 0-4 maps to 4 edges
+            var edge = (int)perimPos;
+            var edgeT = perimPos - edge;
+            edge %= 4;
+
+            var (lat1, lon1) = corners[edge];
+            var (lat2, lon2) = corners[(edge + 1) % 4];
+            var lat = lat1 + edgeT * (lat2 - lat1);
+            var lon = lon1 + edgeT * (lon2 - lon1);
+
+            var gimbalYaw = GeodesicMathService.BearingBetween(lat, lon, centerLat, centerLon);
+            waypoints.Add(new Waypoint(lat, lon, parameters.AltitudeM, gimbalPitch, gimbalYaw));
+        }
+
+        var statistics = ComputeStatistics(waypoints, parameters);
+        return new FlightPlanResult(waypoints, statistics);
+    }
+
+    /// <summary>
+    ///     Calculates waypoints along an offset polygon boundary at the configured radius.
+    /// </summary>
+    private FlightPlanResult CalculatePolygonFollowing(PoiModeParameters parameters, double[][] areaCoordinates)
+    {
+        var photoCount = DeterminePhotoCount(parameters);
+        var gimbalPitch = ComputeGimbalPitch(parameters);
+        var centerLat = parameters.CenterLatitude;
+        var centerLon = parameters.CenterLongitude;
+
+        // Compute total perimeter of area polygon
+        var totalPerimeter = 0.0;
+        var edgeLengths = new double[areaCoordinates.Length - 1];
+        for (var i = 0; i < areaCoordinates.Length - 1; i++)
+        {
+            edgeLengths[i] = GeodesicMathService.DistanceBetween(
+                areaCoordinates[i][1], areaCoordinates[i][0],
+                areaCoordinates[i + 1][1], areaCoordinates[i + 1][0]);
+            totalPerimeter += edgeLengths[i];
+        }
+
+        if (totalPerimeter <= 0) return CalculateCircular(parameters);
+
+        // Distribute waypoints equally along perimeter, offset outward by radius
+        var waypoints = new List<Waypoint>(photoCount);
+        var spacing = totalPerimeter / photoCount;
+
+        for (var i = 0; i < photoCount; i++)
+        {
+            var targetDist = i * spacing;
+            var accumulated = 0.0;
+            var segIdx = 0;
+
+            while (segIdx < edgeLengths.Length - 1 && accumulated + edgeLengths[segIdx] < targetDist)
+            {
+                accumulated += edgeLengths[segIdx];
+                segIdx++;
+            }
+
+            var segT = (targetDist - accumulated) / edgeLengths[segIdx];
+            var baseLat = areaCoordinates[segIdx][1] + segT * (areaCoordinates[segIdx + 1][1] - areaCoordinates[segIdx][1]);
+            var baseLon = areaCoordinates[segIdx][0] + segT * (areaCoordinates[segIdx + 1][0] - areaCoordinates[segIdx][0]);
+
+            // Offset outward from center by radius
+            var bearingFromCenter = GeodesicMathService.BearingBetween(centerLat, centerLon, baseLat, baseLon);
+            var (lat, lon) = GeodesicMathService.DestinationPoint(centerLat, centerLon, bearingFromCenter, parameters.RadiusM);
+
+            var gimbalYaw = GeodesicMathService.BearingBetween(lat, lon, centerLat, centerLon);
+            waypoints.Add(new Waypoint(lat, lon, parameters.AltitudeM, gimbalPitch, gimbalYaw));
+        }
+
+        var statistics = ComputeStatistics(waypoints, parameters);
+        return new FlightPlanResult(waypoints, statistics);
     }
 }

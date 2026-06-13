@@ -119,7 +119,7 @@ public sealed class ResultCompletenessPropertyTests
     public bool PoiMode_ResultIsComplete_WithValidCoordinatesAndPositiveStatistics(
         PoiModeParameters parameters)
     {
-        var result = _poiStrategy.Calculate(parameters);
+        var result = _poiStrategy.Calculate(new PoiCalculationRequest(parameters));
 
         if (result.Waypoints.Count == 0)
         {

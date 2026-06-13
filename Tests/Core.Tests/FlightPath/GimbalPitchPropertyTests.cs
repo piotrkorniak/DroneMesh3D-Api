@@ -51,7 +51,7 @@ public sealed class GimbalPitchPropertyTests
     [Property(MaxTest = 200, Arbitrary = [typeof(PoiModeParametersArbitrary)])]
     public bool PoiMode_AllWaypoints_GimbalPitchWithinBounds(PoiModeParameters parameters)
     {
-        var result = _poiStrategy.Calculate(parameters);
+        var result = _poiStrategy.Calculate(new PoiCalculationRequest(parameters));
 
         if (result.Waypoints.Count == 0)
         {
@@ -72,7 +72,7 @@ public sealed class GimbalPitchPropertyTests
     [Property(MaxTest = 200, Arbitrary = [typeof(PoiWithStructureHeightArbitrary)])]
     public bool PoiMode_WithStructureHeight_GimbalPitchClampedToBounds(PoiModeParameters parameters)
     {
-        var result = _poiStrategy.Calculate(parameters);
+        var result = _poiStrategy.Calculate(new PoiCalculationRequest(parameters));
 
         if (result.Waypoints.Count == 0)
         {
@@ -92,7 +92,7 @@ public sealed class GimbalPitchPropertyTests
     [Property(MaxTest = 200, Arbitrary = [typeof(PoiWithExtremeGimbalPitchArbitrary)])]
     public bool PoiMode_WithExtremePitch_GimbalPitchClampedToBounds(PoiModeParameters parameters)
     {
-        var result = _poiStrategy.Calculate(parameters);
+        var result = _poiStrategy.Calculate(new PoiCalculationRequest(parameters));
 
         if (result.Waypoints.Count == 0)
         {

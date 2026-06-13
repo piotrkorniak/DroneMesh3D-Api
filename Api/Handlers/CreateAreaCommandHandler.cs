@@ -43,8 +43,15 @@ public sealed class CreateAreaCommandHandler(
         var geometry = GeometryConverter.ToPolygon(outerRing);
 
         // 5. Normalize name (trim, nullify whitespace-only)
-        var name = string.IsNullOrWhiteSpace(command.Name) ? null : command.Name.Trim();
-        if (name?.Length > 50) name = name[..50];
+        string? name;
+        try
+        {
+            name = AreaNameValidator.NormalizeAndValidate(command.Name);
+        }
+        catch (ArgumentException)
+        {
+            return new ErrorResponse("Area name contains disallowed characters.");
+        }
 
         // 6. Create and persist entity (SequentialNumber assigned by DB identity column)
         var entity = new AreaEntity

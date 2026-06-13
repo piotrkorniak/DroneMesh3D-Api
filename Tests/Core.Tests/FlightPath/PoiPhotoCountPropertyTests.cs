@@ -23,7 +23,7 @@ public sealed class PoiPhotoCountPropertyTests
     [Property(MaxTest = 100, Arbitrary = [typeof(PoiOverlapParametersArbitrary)])]
     public bool PoiPhotoCount_SatisfiesDesiredOverlap(PoiModeParameters parameters)
     {
-        var result = _strategy.Calculate(parameters);
+        var result = _strategy.Calculate(new PoiCalculationRequest(parameters));
 
         // The photo count must produce sufficient overlap
         var photoCount = result.Waypoints.Count;

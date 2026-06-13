@@ -22,7 +22,7 @@ public sealed class PoiGeometryPropertyTests
     [Property(MaxTest = 100, Arbitrary = [typeof(PoiModeParametersArbitrary)])]
     public bool PoiWaypoints_AllEquidistantFromCenter(PoiModeParameters parameters)
     {
-        var result = _strategy.Calculate(parameters);
+        var result = _strategy.Calculate(new PoiCalculationRequest(parameters));
 
         if (result.Waypoints.Count < 2)
         {
@@ -53,7 +53,7 @@ public sealed class PoiGeometryPropertyTests
     [Property(MaxTest = 100, Arbitrary = [typeof(PoiModeParametersArbitrary)])]
     public bool PoiWaypoints_EquallySpacedAngularly(PoiModeParameters parameters)
     {
-        var result = _strategy.Calculate(parameters);
+        var result = _strategy.Calculate(new PoiCalculationRequest(parameters));
 
         if (result.Waypoints.Count < 2)
         {
@@ -106,7 +106,7 @@ public sealed class PoiGeometryPropertyTests
     [Property(MaxTest = 100, Arbitrary = [typeof(PoiModeParametersArbitrary)])]
     public bool PoiWaypoints_CountMatchesExpectedPhotoCount(PoiModeParameters parameters)
     {
-        var result = _strategy.Calculate(parameters);
+        var result = _strategy.Calculate(new PoiCalculationRequest(parameters));
 
         if (parameters.PhotoCount.HasValue)
         {
@@ -128,7 +128,7 @@ public sealed class PoiGeometryPropertyTests
     [Property(MaxTest = 100, Arbitrary = [typeof(PoiModeParametersArbitrary)])]
     public bool PoiGimbalYaw_PointsTowardCenter(PoiModeParameters parameters)
     {
-        var result = _strategy.Calculate(parameters);
+        var result = _strategy.Calculate(new PoiCalculationRequest(parameters));
 
         if (result.Waypoints.Count == 0)
         {

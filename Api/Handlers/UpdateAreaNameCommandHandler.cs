@@ -2,6 +2,7 @@ using DroneMesh3D.Api.Commands;
 using DroneMesh3D.Api.DTOs;
 using DroneMesh3D.Core;
 using DroneMesh3D.Core.Interfaces;
+using DroneMesh3D.Core.Validation;
 using MediatR;
 
 namespace DroneMesh3D.Api.Handlers;
@@ -14,10 +15,7 @@ public sealed class UpdateAreaNameCommandHandler(IAreaRepository areaRepository)
         var entity = await areaRepository.GetByIdAsync(command.Id, ct);
         if (entity is null) return null;
 
-        var name = string.IsNullOrWhiteSpace(command.Name) ? null : command.Name.Trim();
-        if (name?.Length > 50) name = name[..50];
-
-        entity.Name = name;
+        entity.Name = AreaNameValidator.NormalizeAndValidate(command.Name);
         await areaRepository.UpdateAsync(entity, ct);
 
         return new AreaResponse(
