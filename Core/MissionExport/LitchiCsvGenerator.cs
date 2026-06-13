@@ -16,7 +16,7 @@ public sealed class LitchiCsvGenerator : IMissionFileGenerator
 
     public MissionFileData Generate(Guid flightPlanId, IReadOnlyList<Waypoint> waypoints)
     {
-        var sb = new StringBuilder();
+        var sb = new StringBuilder(waypoints.Count * 110 + Header.Length + 10);
         sb.Append(Header);
         sb.Append('\n');
 

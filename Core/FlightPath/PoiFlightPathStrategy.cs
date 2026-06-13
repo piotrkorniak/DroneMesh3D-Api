@@ -17,7 +17,7 @@ public sealed class PoiFlightPathStrategy
     /// </summary>
     /// <param name="parameters">POI mode flight parameters.</param>
     /// <returns>A flight plan result with ordered waypoints and statistics.</returns>
-    public FlightPlanResult Calculate(PoiModeParameters parameters)
+    public FlightPlanResult Calculate(PoiModeParameters parameters, CancellationToken ct = default)
     {
         // Step 1: Determine photo count
         var photoCount = DeterminePhotoCount(parameters);
@@ -28,6 +28,7 @@ public sealed class PoiFlightPathStrategy
 
         for (var i = 0; i < photoCount; i++)
         {
+            ct.ThrowIfCancellationRequested();
             var bearing = i * angularStep;
 
             // Compute geographic position from center + radius + bearing

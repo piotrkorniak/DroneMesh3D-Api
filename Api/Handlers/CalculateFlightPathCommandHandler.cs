@@ -31,8 +31,8 @@ public sealed class CalculateFlightPathCommandHandler(
         var result = command.Mode switch
         {
             FlightMode.Grid => flightPathCalculator.CalculateGrid(
-                (Polygon)area.Geometry, command.Grid!),
-            FlightMode.Poi => flightPathCalculator.CalculatePoi(command.Poi!),
+                (Polygon)area.Geometry, command.Grid!, ct),
+            FlightMode.Poi => flightPathCalculator.CalculatePoi(command.Poi!, ct),
             _ => throw new InvalidOperationException($"Unsupported flight mode: {command.Mode}")
         };
 

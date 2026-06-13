@@ -14,10 +14,11 @@ public sealed class AreaRepository(AppDbContext context) : IAreaRepository
     }
 
     public async Task<AreaEntity?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await context.Areas.FindAsync([id], ct);
+        => await context.Areas.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id, ct);
 
     public async Task<List<AreaEntity>> GetAllAsync(CancellationToken ct = default)
         => await context.Areas
+            .AsNoTracking()
             .OrderByDescending(a => a.CreatedAt)
             .ToListAsync(ct);
 }

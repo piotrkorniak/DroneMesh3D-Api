@@ -12,6 +12,13 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
         Exception exception,
         CancellationToken cancellationToken)
     {
+        if (exception is OperationCanceledException)
+        {
+            logger.LogInformation("Request was cancelled.");
+            httpContext.Response.StatusCode = 499; // Client Closed Request
+            return true;
+        }
+
         if (exception is ValidationException validationException)
         {
             var errors = validationException.Errors

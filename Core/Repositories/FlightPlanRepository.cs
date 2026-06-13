@@ -15,12 +15,13 @@ public sealed class FlightPlanRepository(AppDbContext context) : IFlightPlanRepo
 
     public async Task<FlightPlanEntity?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await context.FlightPlans
+            .AsNoTracking()
             .Include(e => e.Area)
             .FirstOrDefaultAsync(e => e.Id == id, ct);
 
     public async Task<List<FlightPlanEntity>> ListAsync(Guid? areaId, int limit, int offset, CancellationToken ct = default)
     {
-        var query = context.FlightPlans.AsQueryable();
+        var query = context.FlightPlans.AsNoTracking().AsQueryable();
 
         if (areaId.HasValue)
         {

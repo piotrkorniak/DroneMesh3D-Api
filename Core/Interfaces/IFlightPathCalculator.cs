@@ -5,6 +5,6 @@ namespace DroneMesh3D.Core.Interfaces;
 
 public interface IFlightPathCalculator
 {
-    FlightPlanResult CalculateGrid(Polygon area, GridModeParameters parameters);
-    FlightPlanResult CalculatePoi(PoiModeParameters parameters);
+    FlightPlanResult CalculateGrid(Polygon area, GridModeParameters parameters, CancellationToken ct = default);
+    FlightPlanResult CalculatePoi(PoiModeParameters parameters, CancellationToken ct = default);
 }

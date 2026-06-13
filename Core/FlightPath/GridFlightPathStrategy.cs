@@ -20,7 +20,7 @@ public sealed class GridFlightPathStrategy
     /// <param name="area">The polygon area to cover (WGS84, SRID 4326).</param>
     /// <param name="parameters">Grid mode flight parameters.</param>
     /// <returns>A flight plan result with ordered waypoints and statistics.</returns>
-    public FlightPlanResult Calculate(Polygon area, GridModeParameters parameters)
+    public FlightPlanResult Calculate(Polygon area, GridModeParameters parameters, CancellationToken ct = default)
     {
         // Step 1: Compute GSD, footprint, photo spacing, and line spacing
         var gsd = GeodesicMathService.ComputeGsd(
@@ -50,7 +50,7 @@ public sealed class GridFlightPathStrategy
 
         // Step 4: Generate scan lines and waypoints
         var waypoints = GenerateGridWaypoints(
-            area, heading, lineSpacing, photoSpacing, parameters.AltitudeM, gimbalPitch);
+            area, heading, lineSpacing, photoSpacing, parameters.AltitudeM, gimbalPitch, ct);
 
         // Step 5: Compute flight statistics
         var statistics = ComputeStatistics(waypoints, area, parameters.AltitudeM);
@@ -74,7 +74,8 @@ public sealed class GridFlightPathStrategy
         double lineSpacing,
         double photoSpacing,
         double altitudeM,
-        double gimbalPitch)
+        double gimbalPitch,
+        CancellationToken ct)
     {
         var centroid = polygon.Centroid;
         var centerLat = centroid.Y;
@@ -99,6 +100,7 @@ public sealed class GridFlightPathStrategy
 
         for (var i = 0; i < lineCount; i++)
         {
+            ct.ThrowIfCancellationRequested();
             // Compute offset from center for this line
             var offset = -halfWidth + i * lineSpacing;
 
