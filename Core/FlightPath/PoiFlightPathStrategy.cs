@@ -224,7 +224,10 @@ public sealed class PoiFlightPathStrategy
             totalPerimeter += edgeLengths[i];
         }
 
-        if (totalPerimeter <= 0) return CalculateCircular(parameters);
+        if (totalPerimeter <= 0)
+        {
+            return CalculateCircular(parameters);
+        }
 
         // Distribute waypoints equally along perimeter, offset outward by radius
         var waypoints = new List<Waypoint>(photoCount);

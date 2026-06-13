@@ -15,12 +15,21 @@ public static partial class AreaNameValidator
     /// </summary>
     public static string? NormalizeAndValidate(string? name)
     {
-        if (string.IsNullOrWhiteSpace(name)) return null;
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return null;
+        }
 
         var trimmed = name.Trim();
-        if (trimmed.Length > MaxLength) trimmed = trimmed[..MaxLength];
+        if (trimmed.Length > MaxLength)
+        {
+            trimmed = trimmed[..MaxLength];
+        }
+
         if (!AllowedCharsRegex().IsMatch(trimmed))
+        {
             throw new ArgumentException("Name contains disallowed characters.");
+        }
 
         return trimmed;
     }

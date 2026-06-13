@@ -13,7 +13,10 @@ public sealed class UpdateAreaNameCommandHandler(IAreaRepository areaRepository)
     public async Task<AreaResponse?> Handle(UpdateAreaNameCommand command, CancellationToken ct)
     {
         var entity = await areaRepository.GetByIdAsync(command.Id, ct);
-        if (entity is null) return null;
+        if (entity is null)
+        {
+            return null;
+        }
 
         entity.Name = AreaNameValidator.NormalizeAndValidate(command.Name);
         await areaRepository.UpdateAsync(entity, ct);
