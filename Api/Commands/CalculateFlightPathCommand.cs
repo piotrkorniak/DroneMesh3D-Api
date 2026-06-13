@@ -9,5 +9,7 @@ public record CalculateFlightPathCommand(
     Guid AreaId,
     FlightMode Mode,
     GridModeParameters? Grid,
-    PoiModeParameters? Poi)
+    PoiModeParameters? Poi,
+    OrbitShape? OrbitShape = null,
+    double[][]? AreaCoordinates = null)
     : IRequest<OneOf<FlightPlanResponse, ValidationErrorResponse, ErrorResponse>>;

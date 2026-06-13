@@ -28,7 +28,7 @@ public sealed class PoiFlightPathStrategyTests
     {
         var parameters = DefaultPoiParams();
 
-        var result = _sut.Calculate(parameters);
+        var result = _sut.Calculate(new PoiCalculationRequest(parameters));
 
         Assert.Equal(4, result.Waypoints.Count);
     }
@@ -38,7 +38,7 @@ public sealed class PoiFlightPathStrategyTests
     {
         var parameters = DefaultPoiParams(36);
 
-        var result = _sut.Calculate(parameters);
+        var result = _sut.Calculate(new PoiCalculationRequest(parameters));
 
         Assert.Equal(36, result.Waypoints.Count);
         // Angular step = 360 / 36 = 10°
@@ -54,7 +54,7 @@ public sealed class PoiFlightPathStrategyTests
     {
         var parameters = DefaultPoiParams();
 
-        var result = _sut.Calculate(parameters);
+        var result = _sut.Calculate(new PoiCalculationRequest(parameters));
 
         foreach (var wp in result.Waypoints)
         {
@@ -71,7 +71,7 @@ public sealed class PoiFlightPathStrategyTests
     {
         var parameters = DefaultPoiParams(8, 50.0);
 
-        var result = _sut.Calculate(parameters);
+        var result = _sut.Calculate(new PoiCalculationRequest(parameters));
 
         foreach (var wp in result.Waypoints)
         {
@@ -91,7 +91,7 @@ public sealed class PoiFlightPathStrategyTests
     {
         var parameters = DefaultPoiParams();
 
-        var result = _sut.Calculate(parameters);
+        var result = _sut.Calculate(new PoiCalculationRequest(parameters));
 
         foreach (var wp in result.Waypoints)
         {
@@ -111,7 +111,7 @@ public sealed class PoiFlightPathStrategyTests
         // So gimbal yaw should point toward center = ~180° (south)
         var parameters = DefaultPoiParams();
 
-        var result = _sut.Calculate(parameters);
+        var result = _sut.Calculate(new PoiCalculationRequest(parameters));
 
         var firstWp = result.Waypoints[0];
         // First waypoint placed at bearing 0° from center = north of center
@@ -139,7 +139,7 @@ public sealed class PoiFlightPathStrategyTests
             82.0,
             null);
 
-        var result = _sut.Calculate(parameters);
+        var result = _sut.Calculate(new PoiCalculationRequest(parameters));
 
         Assert.Equal(22, result.Waypoints.Count);
     }
@@ -160,7 +160,7 @@ public sealed class PoiFlightPathStrategyTests
             82.0,
             null);
 
-        var result = _sut.Calculate(parameters);
+        var result = _sut.Calculate(new PoiCalculationRequest(parameters));
 
         Assert.Equal(15, result.Waypoints.Count);
     }
@@ -174,7 +174,7 @@ public sealed class PoiFlightPathStrategyTests
     {
         var parameters = DefaultPoiParams(8, altitude: 60.0);
 
-        var result = _sut.Calculate(parameters);
+        var result = _sut.Calculate(new PoiCalculationRequest(parameters));
 
         foreach (var wp in result.Waypoints)
         {
@@ -187,7 +187,7 @@ public sealed class PoiFlightPathStrategyTests
     {
         var parameters = DefaultPoiParams(8, altitude: 120.0);
 
-        var result = _sut.Calculate(parameters);
+        var result = _sut.Calculate(new PoiCalculationRequest(parameters));
 
         Assert.NotNull(result);
         Assert.Equal(8, result.Waypoints.Count);
@@ -206,7 +206,7 @@ public sealed class PoiFlightPathStrategyTests
     {
         var parameters = DefaultPoiParams(8);
 
-        var result = _sut.Calculate(parameters);
+        var result = _sut.Calculate(new PoiCalculationRequest(parameters));
 
         Assert.True(result.Statistics.TotalDistanceM > 0);
         Assert.True(result.Statistics.EstimatedFlightTimeS > 0);
@@ -219,7 +219,7 @@ public sealed class PoiFlightPathStrategyTests
     {
         var parameters = DefaultPoiParams(12);
 
-        var result = _sut.Calculate(parameters);
+        var result = _sut.Calculate(new PoiCalculationRequest(parameters));
 
         Assert.Equal(result.Waypoints.Count, result.Statistics.PhotoCount);
     }
@@ -233,7 +233,7 @@ public sealed class PoiFlightPathStrategyTests
     {
         var parameters = DefaultPoiParams(gimbalPitch: -60.0);
 
-        var result = _sut.Calculate(parameters);
+        var result = _sut.Calculate(new PoiCalculationRequest(parameters));
 
         foreach (var wp in result.Waypoints)
         {
@@ -247,7 +247,7 @@ public sealed class PoiFlightPathStrategyTests
         // Request pitch of -100 should be clamped to -90
         var parameters = DefaultPoiParams(gimbalPitch: -100.0);
 
-        var result = _sut.Calculate(parameters);
+        var result = _sut.Calculate(new PoiCalculationRequest(parameters));
 
         foreach (var wp in result.Waypoints)
         {
@@ -261,7 +261,7 @@ public sealed class PoiFlightPathStrategyTests
         // Request pitch of -30 should be clamped to -45
         var parameters = DefaultPoiParams(gimbalPitch: -30.0);
 
-        var result = _sut.Calculate(parameters);
+        var result = _sut.Calculate(new PoiCalculationRequest(parameters));
 
         foreach (var wp in result.Waypoints)
         {

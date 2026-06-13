@@ -21,4 +21,10 @@ public sealed class AreaRepository(AppDbContext context) : IAreaRepository
             .AsNoTracking()
             .OrderByDescending(a => a.CreatedAt)
             .ToListAsync(ct);
+
+    public async Task UpdateAsync(AreaEntity entity, CancellationToken ct = default)
+    {
+        context.Areas.Update(entity);
+        await context.SaveChangesAsync(ct);
+    }
 }

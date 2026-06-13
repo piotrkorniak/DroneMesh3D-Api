@@ -42,20 +42,34 @@ public sealed class CreateAreaCommandHandler(
         // 4. Convert to NTS polygon
         var geometry = GeometryConverter.ToPolygon(outerRing);
 
-        // 5. Create and persist entity
+        // 5. Normalize name (trim, nullify whitespace-only)
+        string? name;
+        try
+        {
+            name = AreaNameValidator.NormalizeAndValidate(command.Name);
+        }
+        catch (ArgumentException)
+        {
+            return new ErrorResponse("Area name contains disallowed characters.");
+        }
+
+        // 6. Create and persist entity (SequentialNumber assigned by DB identity column)
         var entity = new AreaEntity
         {
             Id = Guid.CreateVersion7(),
             CreatedAt = DateTimeOffset.UtcNow,
-            Geometry = geometry
+            Geometry = geometry,
+            Name = name
         };
 
         await areaRepository.AddAsync(entity, ct);
 
-        // 6. Return response
+        // 7. Return response
         return new AreaResponse(
             entity.Id,
             entity.CreatedAt,
-            new GeoJsonGeometry(GeoJsonType.Polygon, command.Coordinates));
+            new GeoJsonGeometry(GeoJsonType.Polygon, command.Coordinates),
+            entity.Name,
+            entity.SequentialNumber);
     }
 }

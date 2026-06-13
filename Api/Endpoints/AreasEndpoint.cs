@@ -26,6 +26,10 @@ public static class AreasEndpoint
         group.MapDelete("/{id:guid}", DeleteArea)
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status404NotFound);
+
+        group.MapPatch("/{id:guid}", UpdateAreaName)
+            .Produces<AreaResponse>()
+            .ProducesProblem(StatusCodes.Status404NotFound);
     }
 
     private static async Task<IResult> ListAreas(
@@ -46,7 +50,7 @@ public static class AreasEndpoint
             return Results.BadRequest(new ErrorResponse("Invalid GeoJSON geometry type."));
         }
 
-        var command = new CreateAreaCommand(request.Type, request.Coordinates);
+        var command = new CreateAreaCommand(request.Type, request.Coordinates, request.Name);
         var result = await mediator.Send(command, ct);
 
         return result.Match(
@@ -73,5 +77,15 @@ public static class AreasEndpoint
     {
         var result = await mediator.Send(new DeleteAreaCommand(id), ct);
         return result ? Results.NoContent() : Results.NotFound();
+    }
+
+    private static async Task<IResult> UpdateAreaName(
+        Guid id,
+        UpdateAreaNameRequest request,
+        IMediator mediator,
+        CancellationToken ct)
+    {
+        var result = await mediator.Send(new UpdateAreaNameCommand(id, request.Name), ct);
+        return result is not null ? Results.Ok(result) : Results.NotFound();
     }
 }

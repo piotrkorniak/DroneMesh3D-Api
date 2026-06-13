@@ -14,6 +14,6 @@ public sealed class FlightPathCalculator(
     public FlightPlanResult CalculateGrid(Polygon area, GridModeParameters parameters, CancellationToken ct = default)
         => gridStrategy.Calculate(area, parameters, ct);
 
-    public FlightPlanResult CalculatePoi(PoiModeParameters parameters, CancellationToken ct = default)
-        => poiStrategy.Calculate(parameters, ct);
+    public FlightPlanResult CalculatePoi(PoiCalculationRequest request, CancellationToken ct = default)
+        => poiStrategy.Calculate(request);
 }

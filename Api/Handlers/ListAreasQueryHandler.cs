@@ -17,7 +17,9 @@ public sealed class ListAreasQueryHandler(IAreaRepository areaRepository)
             .Select(entity => new AreaResponse(
                 entity.Id,
                 entity.CreatedAt,
-                GeometryConverter.ToGeoJson(entity.Geometry)))
+                GeometryConverter.ToGeoJson(entity.Geometry),
+                entity.Name,
+                entity.SequentialNumber))
             .ToList();
     }
 }

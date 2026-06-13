@@ -20,6 +20,8 @@ public sealed class GetAreaQueryHandler(IAreaRepository areaRepository)
         return new AreaResponse(
             entity.Id,
             entity.CreatedAt,
-            GeometryConverter.ToGeoJson(entity.Geometry));
+            GeometryConverter.ToGeoJson(entity.Geometry),
+            entity.Name,
+            entity.SequentialNumber);
     }
 }
