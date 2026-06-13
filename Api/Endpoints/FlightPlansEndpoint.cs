@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using DroneMesh3D.Api.Commands;
 using DroneMesh3D.Api.DTOs;
 using DroneMesh3D.Api.Queries;
@@ -11,7 +12,7 @@ public static class FlightPlansEndpoint
 {
     public static void MapFlightPlansEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/flight-plans").WithTags("FlightPlans");
+        var group = app.MapGroup("/api/flight-plans").WithTags("FlightPlans").RequireAuthorization();
 
         group.MapGet("/", ListFlightPlans)
             .Produces<List<FlightPlanResponse>>()
@@ -40,10 +41,14 @@ public static class FlightPlansEndpoint
             .ProducesProblem(StatusCodes.Status404NotFound);
     }
 
+    private static Guid GetUserId(ClaimsPrincipal user) =>
+        Guid.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
     private static async Task<IResult> ListFlightPlans(
         string? areaId,
         int? limit,
         int? offset,
+        ClaimsPrincipal user,
         ISender sender,
         CancellationToken ct)
     {
@@ -62,7 +67,7 @@ public static class FlightPlansEndpoint
         var clampedLimit = Math.Clamp(limit ?? 100, 1, 100);
         var clampedOffset = Math.Max(offset ?? 0, 0);
 
-        var query = new ListFlightPlansQuery(parsedAreaId, clampedLimit, clampedOffset);
+        var query = new ListFlightPlansQuery(parsedAreaId, GetUserId(user), clampedLimit, clampedOffset);
         var result = await sender.Send(query, ct);
 
         return Results.Ok(result);
@@ -70,6 +75,7 @@ public static class FlightPlansEndpoint
 
     private static async Task<IResult> CalculateFlightPath(
         CalculateFlightPathRequest request,
+        ClaimsPrincipal user,
         IMediator mediator,
         CancellationToken ct)
     {
@@ -104,6 +110,7 @@ public static class FlightPlansEndpoint
         var command = new CalculateFlightPathCommand(
             request.AreaId,
             request.Mode,
+            GetUserId(user),
             gridParameters,
             poiParameters,
             orbitShape,
@@ -122,10 +129,11 @@ public static class FlightPlansEndpoint
 
     private static async Task<IResult> GetFlightPlan(
         Guid id,
+        ClaimsPrincipal user,
         IMediator mediator,
         CancellationToken ct)
     {
-        var query = new GetFlightPlanQuery(id);
+        var query = new GetFlightPlanQuery(id, GetUserId(user));
         var result = await mediator.Send(query, ct);
         return result is not null ? Results.Ok(result) : Results.NotFound();
     }
@@ -133,6 +141,7 @@ public static class FlightPlansEndpoint
     private static async Task<IResult> ExportMissionFile(
         Guid id,
         ExportFormat? format,
+        ClaimsPrincipal user,
         IMediator mediator,
         CancellationToken ct)
     {
@@ -145,7 +154,7 @@ public static class FlightPlansEndpoint
             return Results.UnprocessableEntity(new ValidationErrorResponse(errors));
         }
 
-        var query = new ExportMissionFileQuery(id, format.Value);
+        var query = new ExportMissionFileQuery(id, format.Value, GetUserId(user));
         var result = await mediator.Send(query, ct);
 
         return result.Match(
@@ -162,10 +171,11 @@ public static class FlightPlansEndpoint
 
     private static async Task<IResult> DeleteFlightPlan(
         Guid id,
+        ClaimsPrincipal user,
         ISender sender,
         CancellationToken ct)
     {
-        var command = new DeleteFlightPlanCommand(id);
+        var command = new DeleteFlightPlanCommand(id, GetUserId(user));
         var deleted = await sender.Send(command, ct);
         return deleted ? Results.NoContent() : Results.NotFound();
     }

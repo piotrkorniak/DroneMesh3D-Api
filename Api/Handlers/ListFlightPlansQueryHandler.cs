@@ -11,7 +11,7 @@ public sealed class ListFlightPlansQueryHandler(
 {
     public async Task<List<FlightPlanResponse>> Handle(ListFlightPlansQuery request, CancellationToken ct)
     {
-        var entities = await flightPlanRepository.ListAsync(request.AreaId, request.Limit, request.Offset, ct);
+        var entities = await flightPlanRepository.ListAsync(request.AreaId, request.UserId, request.Limit, request.Offset, ct);
 
         return entities.Select(entity =>
         {

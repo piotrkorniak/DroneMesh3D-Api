@@ -15,6 +15,8 @@ public static class WebApplicationExtensions
 
         app.UseExceptionHandler();
         app.UseCors();
+        app.UseAuthentication();
+        app.UseAuthorization();
         app.MapOpenApi();
         app.MapScalarApiReference();
 
@@ -23,6 +25,7 @@ public static class WebApplicationExtensions
 
     public static WebApplication MapEndpoints(this WebApplication app)
     {
+        app.MapAuthEndpoints();
         app.MapAreasEndpoints();
         app.MapFlightPlansEndpoints();
 

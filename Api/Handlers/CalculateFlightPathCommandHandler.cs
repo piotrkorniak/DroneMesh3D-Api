@@ -21,7 +21,7 @@ public sealed class CalculateFlightPathCommandHandler(
         CancellationToken ct)
     {
         // 1. Load AreaEntity by ID
-        var area = await areaRepository.GetByIdAsync(command.AreaId, ct);
+        var area = await areaRepository.GetByIdAsync(command.AreaId, command.UserId, ct);
         if (area is null)
         {
             return new ErrorResponse($"Area with ID '{command.AreaId}' was not found.");
@@ -50,7 +50,8 @@ public sealed class CalculateFlightPathCommandHandler(
             EstimatedFlightTimeS = result.Statistics.EstimatedFlightTimeS,
             PhotoCount = result.Statistics.PhotoCount,
             CoveredAreaM2 = result.Statistics.CoveredAreaM2,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            UserId = command.UserId
         };
 
         // 4. Persist to database

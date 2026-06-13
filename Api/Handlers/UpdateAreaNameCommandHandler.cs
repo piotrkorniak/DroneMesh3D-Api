@@ -12,7 +12,7 @@ public sealed class UpdateAreaNameCommandHandler(IAreaRepository areaRepository)
 {
     public async Task<AreaResponse?> Handle(UpdateAreaNameCommand command, CancellationToken ct)
     {
-        var entity = await areaRepository.GetByIdAsync(command.Id, ct);
+        var entity = await areaRepository.GetByIdAsync(command.Id, command.UserId, ct);
         if (entity is null)
         {
             return null;

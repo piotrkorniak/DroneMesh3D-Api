@@ -1,8 +1,13 @@
+using System.Security.Claims;
+using System.Text.Encodings.Web;
 using DroneMesh3D.Core.Data;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace DroneMesh3D.Api.Tests.Integration;
 
@@ -12,6 +17,8 @@ namespace DroneMesh3D.Api.Tests.Integration;
 /// </summary>
 public sealed class DroneMesh3DApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
+    public static readonly Guid TestUserId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
     public async Task InitializeAsync()
     {
         // Ensure a clean database at the start of the test run
@@ -58,8 +65,42 @@ public sealed class DroneMesh3DApiFactory : WebApplicationFactory<Program>, IAsy
                                    ?? "Host=localhost;Database=dronemesh3d_test;Username=postgres;Password=YourStr0ngP@ssword";
 
             services.AddDbContext<AppDbContext>(options => { options.UseNpgsql(connectionString, x => x.UseNetTopologySuite()); });
+
+            // Replace authentication with test scheme
+            services.AddAuthentication("Test")
+                .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", _ => { });
+
+            services.PostConfigure<AuthenticationOptions>(o =>
+            {
+                o.DefaultAuthenticateScheme = "Test";
+                o.DefaultChallengeScheme = "Test";
+            });
         });
 
         builder.UseEnvironment("Testing");
+    }
+}
+
+internal sealed class TestAuthHandler(
+    IOptionsMonitor<AuthenticationSchemeOptions> options,
+    ILoggerFactory logger,
+    UrlEncoder encoder)
+    : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
+{
+    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+    {
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, DroneMesh3DApiFactory.TestUserId.ToString()),
+            new Claim(ClaimTypes.Email, "test@example.com"),
+            new Claim(ClaimTypes.Name, "Test User"),
+            new Claim("avatar_url", "")
+        };
+
+        var identity = new ClaimsIdentity(claims, "Test");
+        var principal = new ClaimsPrincipal(identity);
+        var ticket = new AuthenticationTicket(principal, "Test");
+
+        return Task.FromResult(AuthenticateResult.Success(ticket));
     }
 }

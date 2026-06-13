@@ -9,6 +9,8 @@ namespace DroneMesh3D.Api.Tests.Handlers;
 
 public sealed class CreateAreaCommandHandlerTests
 {
+    private static readonly Guid TestUserId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
     // A valid closed polygon ring
     private static readonly double[][] ValidRing =
     [
@@ -32,7 +34,7 @@ public sealed class CreateAreaCommandHandlerTests
     public async Task Handle_ValidCommand_ReturnsAreaResponse()
     {
         // Arrange
-        var command = new CreateAreaCommand(GeoJsonType.Polygon, [ValidRing]);
+        var command = new CreateAreaCommand(GeoJsonType.Polygon, [ValidRing], TestUserId);
 
         _validator.Validate(Arg.Any<double[][]>())
             .Returns(new ValidationResult(true, []));
@@ -64,7 +66,7 @@ public sealed class CreateAreaCommandHandlerTests
             [21.0005, 52.0013],
             [21.0005, 52.0005]
         ];
-        var command = new CreateAreaCommand(GeoJsonType.Polygon, [ValidRing, secondRing]);
+        var command = new CreateAreaCommand(GeoJsonType.Polygon, [ValidRing, secondRing], TestUserId);
 
         // Act
         var result = await _sut.Handle(command, CancellationToken.None);
@@ -79,7 +81,7 @@ public sealed class CreateAreaCommandHandlerTests
     public async Task Handle_FailedGeometryValidation_ReturnsValidationErrorResponse()
     {
         // Arrange
-        var command = new CreateAreaCommand(GeoJsonType.Polygon, [ValidRing]);
+        var command = new CreateAreaCommand(GeoJsonType.Polygon, [ValidRing], TestUserId);
         var errors = new List<string>
         {
             "Polygon must not self-intersect.",

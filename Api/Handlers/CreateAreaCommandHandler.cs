@@ -59,7 +59,8 @@ public sealed class CreateAreaCommandHandler(
             Id = Guid.CreateVersion7(),
             CreatedAt = DateTimeOffset.UtcNow,
             Geometry = geometry,
-            Name = name
+            Name = name,
+            UserId = command.UserId
         };
 
         await areaRepository.AddAsync(entity, ct);

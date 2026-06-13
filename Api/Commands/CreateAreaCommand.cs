@@ -5,5 +5,5 @@ using OneOf;
 
 namespace DroneMesh3D.Api.Commands;
 
-public record CreateAreaCommand(GeoJsonType Type, double[][][] Coordinates, string? Name = null)
+public record CreateAreaCommand(GeoJsonType Type, double[][][] Coordinates, Guid UserId, string? Name = null)
     : IRequest<OneOf<AreaResponse, ValidationErrorResponse, ErrorResponse>>;

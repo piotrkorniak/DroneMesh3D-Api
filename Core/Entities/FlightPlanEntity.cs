@@ -16,4 +16,6 @@ public sealed class FlightPlanEntity
     public double CoveredAreaM2 { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public AreaEntity Area { get; set; } = null!;
+    public Guid UserId { get; set; }
+    public UserEntity User { get; set; } = null!;
 }

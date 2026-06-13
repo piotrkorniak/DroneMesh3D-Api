@@ -11,7 +11,7 @@ public sealed class DeleteAreaCommandHandler(AppDbContext context)
     public async Task<bool> Handle(DeleteAreaCommand command, CancellationToken ct)
     {
         var deleted = await context.Areas
-            .Where(a => a.Id == command.Id)
+            .Where(a => a.Id == command.Id && a.UserId == command.UserId)
             .ExecuteDeleteAsync(ct);
 
         return deleted > 0;

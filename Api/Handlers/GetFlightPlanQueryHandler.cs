@@ -11,7 +11,7 @@ public sealed class GetFlightPlanQueryHandler(
 {
     public async Task<FlightPlanResponse?> Handle(GetFlightPlanQuery query, CancellationToken ct)
     {
-        var entity = await flightPlanRepository.GetByIdAsync(query.Id, ct);
+        var entity = await flightPlanRepository.GetByIdAsync(query.Id, query.UserId, ct);
         if (entity is null)
         {
             return null;

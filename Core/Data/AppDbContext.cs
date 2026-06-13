@@ -5,6 +5,7 @@ namespace DroneMesh3D.Core.Data;
 
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
+    public DbSet<UserEntity> Users => Set<UserEntity>();
     public DbSet<AreaEntity> Areas => Set<AreaEntity>();
     public DbSet<FlightPlanEntity> FlightPlans => Set<FlightPlanEntity>();
 

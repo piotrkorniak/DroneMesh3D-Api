@@ -3,4 +3,4 @@ using MediatR;
 
 namespace DroneMesh3D.Api.Queries;
 
-public record GetFlightPlanQuery(Guid Id) : IRequest<FlightPlanResponse?>;
+public record GetFlightPlanQuery(Guid Id, Guid UserId) : IRequest<FlightPlanResponse?>;

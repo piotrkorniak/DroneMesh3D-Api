@@ -9,4 +9,6 @@ public sealed class AreaEntity
     public required Geometry Geometry { get; set; }
     public string? Name { get; set; }
     public int SequentialNumber { get; set; }
+    public Guid UserId { get; set; }
+    public UserEntity User { get; set; } = null!;
 }

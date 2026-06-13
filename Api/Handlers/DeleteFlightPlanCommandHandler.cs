@@ -11,7 +11,7 @@ public sealed class DeleteFlightPlanCommandHandler(AppDbContext context)
     public async Task<bool> Handle(DeleteFlightPlanCommand command, CancellationToken ct)
     {
         var deleted = await context.FlightPlans
-            .Where(fp => fp.Id == command.Id)
+            .Where(fp => fp.Id == command.Id && fp.UserId == command.UserId)
             .ExecuteDeleteAsync(ct);
 
         return deleted > 0;

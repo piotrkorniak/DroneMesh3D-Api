@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using DroneMesh3D.Api.Commands;
 using DroneMesh3D.Api.DTOs;
 using DroneMesh3D.Api.Queries;
@@ -9,7 +10,7 @@ public static class AreasEndpoint
 {
     public static void MapAreasEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/areas").WithTags("Areas");
+        var group = app.MapGroup("/api/areas").WithTags("Areas").RequireAuthorization();
 
         group.MapGet("/", ListAreas)
             .Produces<List<AreaResponse>>();
@@ -32,16 +33,21 @@ public static class AreasEndpoint
             .ProducesProblem(StatusCodes.Status404NotFound);
     }
 
+    private static Guid GetUserId(ClaimsPrincipal user) =>
+        Guid.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
     private static async Task<IResult> ListAreas(
+        ClaimsPrincipal user,
         IMediator mediator,
         CancellationToken ct)
     {
-        var result = await mediator.Send(new ListAreasQuery(), ct);
+        var result = await mediator.Send(new ListAreasQuery(GetUserId(user)), ct);
         return Results.Ok(result);
     }
 
     private static async Task<IResult> CreateArea(
         CreateAreaRequest request,
+        ClaimsPrincipal user,
         IMediator mediator,
         CancellationToken ct)
     {
@@ -50,7 +56,7 @@ public static class AreasEndpoint
             return Results.BadRequest(new ErrorResponse("Invalid GeoJSON geometry type."));
         }
 
-        var command = new CreateAreaCommand(request.Type, request.Coordinates, request.Name);
+        var command = new CreateAreaCommand(request.Type, request.Coordinates, GetUserId(user), request.Name);
         var result = await mediator.Send(command, ct);
 
         return result.Match(
@@ -62,30 +68,33 @@ public static class AreasEndpoint
 
     private static async Task<IResult> GetArea(
         Guid id,
+        ClaimsPrincipal user,
         IMediator mediator,
         CancellationToken ct)
     {
-        var query = new GetAreaQuery(id);
+        var query = new GetAreaQuery(id, GetUserId(user));
         var result = await mediator.Send(query, ct);
         return result is not null ? Results.Ok(result) : Results.NotFound();
     }
 
     private static async Task<IResult> DeleteArea(
         Guid id,
+        ClaimsPrincipal user,
         IMediator mediator,
         CancellationToken ct)
     {
-        var result = await mediator.Send(new DeleteAreaCommand(id), ct);
+        var result = await mediator.Send(new DeleteAreaCommand(id, GetUserId(user)), ct);
         return result ? Results.NoContent() : Results.NotFound();
     }
 
     private static async Task<IResult> UpdateAreaName(
         Guid id,
         UpdateAreaNameRequest request,
+        ClaimsPrincipal user,
         IMediator mediator,
         CancellationToken ct)
     {
-        var result = await mediator.Send(new UpdateAreaNameCommand(id, request.Name), ct);
+        var result = await mediator.Send(new UpdateAreaNameCommand(id, GetUserId(user), request.Name), ct);
         return result is not null ? Results.Ok(result) : Results.NotFound();
     }
 }

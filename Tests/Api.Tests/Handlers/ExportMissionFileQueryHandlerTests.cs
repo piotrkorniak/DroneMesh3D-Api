@@ -11,6 +11,7 @@ namespace DroneMesh3D.Api.Tests.Handlers;
 
 public sealed class ExportMissionFileQueryHandlerTests
 {
+    private static readonly Guid TestUserId = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private readonly IMissionFileGeneratorFactory _factory = Substitute.For<IMissionFileGeneratorFactory>();
     private readonly ILogger<ExportMissionFileQueryHandler> _logger = Substitute.For<ILogger<ExportMissionFileQueryHandler>>();
     private readonly IFlightPlanRepository _repository = Substitute.For<IFlightPlanRepository>();
@@ -26,9 +27,9 @@ public sealed class ExportMissionFileQueryHandlerTests
     {
         // Arrange
         var flightPlanId = Guid.NewGuid();
-        var query = new ExportMissionFileQuery(flightPlanId, ExportFormat.LitchiCsv);
+        var query = new ExportMissionFileQuery(flightPlanId, ExportFormat.LitchiCsv, TestUserId);
 
-        _repository.GetByIdAsync(flightPlanId, Arg.Any<CancellationToken>())
+        _repository.GetByIdAsync(flightPlanId, TestUserId, Arg.Any<CancellationToken>())
             .Returns((FlightPlanEntity?)null);
 
         // Act
@@ -46,7 +47,7 @@ public sealed class ExportMissionFileQueryHandlerTests
     {
         // Arrange
         var flightPlanId = Guid.NewGuid();
-        var query = new ExportMissionFileQuery(flightPlanId, ExportFormat.DjiWpml);
+        var query = new ExportMissionFileQuery(flightPlanId, ExportFormat.DjiWpml, TestUserId);
 
         var entity = new FlightPlanEntity
         {
@@ -54,7 +55,7 @@ public sealed class ExportMissionFileQueryHandlerTests
             Waypoints = []
         };
 
-        _repository.GetByIdAsync(flightPlanId, Arg.Any<CancellationToken>())
+        _repository.GetByIdAsync(flightPlanId, TestUserId, Arg.Any<CancellationToken>())
             .Returns(entity);
 
         // Act
@@ -72,7 +73,7 @@ public sealed class ExportMissionFileQueryHandlerTests
     {
         // Arrange
         var flightPlanId = Guid.NewGuid();
-        var query = new ExportMissionFileQuery(flightPlanId, ExportFormat.LitchiCsv);
+        var query = new ExportMissionFileQuery(flightPlanId, ExportFormat.LitchiCsv, TestUserId);
 
         var waypoints = new List<Waypoint>
         {
@@ -95,7 +96,7 @@ public sealed class ExportMissionFileQueryHandlerTests
         generator.Generate(flightPlanId, Arg.Any<IReadOnlyList<Waypoint>>())
             .Returns(expectedFileData);
 
-        _repository.GetByIdAsync(flightPlanId, Arg.Any<CancellationToken>())
+        _repository.GetByIdAsync(flightPlanId, TestUserId, Arg.Any<CancellationToken>())
             .Returns(entity);
 
         _factory.GetGenerator(ExportFormat.LitchiCsv)

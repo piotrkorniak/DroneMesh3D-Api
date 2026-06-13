@@ -9,6 +9,7 @@ namespace DroneMesh3D.Api.Tests.Handlers;
 
 public sealed class ListFlightPlansQueryHandlerTests
 {
+    private static readonly Guid TestUserId = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private readonly IFlightPlanRepository _repository = Substitute.For<IFlightPlanRepository>();
     private readonly ListFlightPlansQueryHandler _sut;
 
@@ -21,8 +22,8 @@ public sealed class ListFlightPlansQueryHandlerTests
     public async Task Handle_ReturnsEmptyList_WhenNoFlightPlansExist()
     {
         // Arrange
-        var query = new ListFlightPlansQuery(null);
-        _repository.ListAsync(null, 100, 0, Arg.Any<CancellationToken>())
+        var query = new ListFlightPlansQuery(null, TestUserId);
+        _repository.ListAsync(null, TestUserId, 100, 0, Arg.Any<CancellationToken>())
             .Returns([]);
 
         // Act
@@ -59,8 +60,8 @@ public sealed class ListFlightPlansQueryHandlerTests
             CreatedAt = createdAt
         };
 
-        var query = new ListFlightPlansQuery(areaId, 50, 10);
-        _repository.ListAsync(areaId, 50, 10, Arg.Any<CancellationToken>())
+        var query = new ListFlightPlansQuery(areaId, TestUserId, 50, 10);
+        _repository.ListAsync(areaId, TestUserId, 50, 10, Arg.Any<CancellationToken>())
             .Returns([entity]);
 
         // Act
@@ -85,14 +86,14 @@ public sealed class ListFlightPlansQueryHandlerTests
     {
         // Arrange
         var areaId = Guid.NewGuid();
-        var query = new ListFlightPlansQuery(areaId, 25, 5);
-        _repository.ListAsync(areaId, 25, 5, Arg.Any<CancellationToken>())
+        var query = new ListFlightPlansQuery(areaId, TestUserId, 25, 5);
+        _repository.ListAsync(areaId, TestUserId, 25, 5, Arg.Any<CancellationToken>())
             .Returns([]);
 
         // Act
         await _sut.Handle(query, CancellationToken.None);
 
         // Assert
-        await _repository.Received(1).ListAsync(areaId, 25, 5, Arg.Any<CancellationToken>());
+        await _repository.Received(1).ListAsync(areaId, TestUserId, 25, 5, Arg.Any<CancellationToken>());
     }
 }

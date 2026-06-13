@@ -27,5 +27,10 @@ public sealed class FlightPlanEntityConfiguration : IEntityTypeConfiguration<Fli
             .WithMany()
             .HasForeignKey(e => e.AreaId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        entity.HasOne(e => e.User)
+            .WithMany()
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

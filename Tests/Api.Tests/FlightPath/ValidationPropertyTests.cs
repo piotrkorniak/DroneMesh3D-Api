@@ -25,6 +25,7 @@ public sealed class ValidationPropertyTests
         new(
             Guid.NewGuid(),
             FlightMode.Grid,
+            Guid.NewGuid(),
             new GridModeParameters(
                 altitudeM ?? 80,
                 camera ?? new CameraParameters(13.2, 8.8, 5472, 3648),
@@ -182,6 +183,7 @@ public sealed class ValidationPropertyTests
             var command = new CalculateFlightPathCommand(
                 Guid.NewGuid(),
                 FlightMode.Grid,
+                Guid.NewGuid(),
                 null, // missing grid params
                 null);
             var result = _validator.Validate(command);
@@ -207,6 +209,7 @@ public sealed class ValidationPropertyTests
             var command = new CalculateFlightPathCommand(
                 Guid.NewGuid(),
                 FlightMode.Poi,
+                Guid.NewGuid(),
                 null,
                 null); // missing poi params
             var result = _validator.Validate(command);

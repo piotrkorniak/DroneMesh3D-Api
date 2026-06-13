@@ -11,7 +11,7 @@ public sealed class ListAreasQueryHandler(IAreaRepository areaRepository)
 {
     public async Task<List<AreaResponse>> Handle(ListAreasQuery query, CancellationToken ct)
     {
-        var entities = await areaRepository.GetAllAsync(ct);
+        var entities = await areaRepository.GetAllAsync(query.UserId, ct);
 
         return entities
             .Select(entity => new AreaResponse(

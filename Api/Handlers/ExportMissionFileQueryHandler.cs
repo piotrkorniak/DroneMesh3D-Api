@@ -18,7 +18,7 @@ public sealed class ExportMissionFileQueryHandler(
         CancellationToken ct)
     {
         // 1. Load FlightPlanEntity by ID
-        var entity = await flightPlanRepository.GetByIdAsync(query.FlightPlanId, ct);
+        var entity = await flightPlanRepository.GetByIdAsync(query.FlightPlanId, query.UserId, ct);
         if (entity is null)
         {
             logger.LogError(
