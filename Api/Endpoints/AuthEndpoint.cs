@@ -48,7 +48,8 @@ public static class AuthEndpoint
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
 
-            return Results.Redirect(Uri.IsWellFormedUriString(returnUrl, UriKind.Relative) ? returnUrl : "/");
+            var safeUrl = IsAllowedRedirect(returnUrl, httpContext) ? returnUrl! : "/";
+            return Results.Redirect(safeUrl);
         });
 
         group.MapPost("/logout", async (HttpContext httpContext) =>
@@ -66,5 +67,28 @@ public static class AuthEndpoint
 
             return Results.Ok(new { id, email, name, avatarUrl });
         }).RequireAuthorization();
+    }
+
+    private static bool IsAllowedRedirect(string? url, HttpContext ctx)
+    {
+        if (string.IsNullOrEmpty(url))
+        {
+            return false;
+        }
+
+        if (Uri.IsWellFormedUriString(url, UriKind.Relative))
+        {
+            return true;
+        }
+
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+        {
+            return false;
+        }
+
+        var origins = ctx.RequestServices.GetRequiredService<IConfiguration>()
+            .GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+
+        return origins.Any(o => uri.ToString().StartsWith(o, StringComparison.OrdinalIgnoreCase));
     }
 }
