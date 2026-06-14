@@ -3,4 +3,4 @@ using MediatR;
 
 namespace DroneMesh3D.Api.Commands;
 
-public record UpdateAreaNameCommand(Guid Id, Guid UserId, string? Name) : IRequest<AreaResponse?>;
+public record UpdateAreaNameCommand(Guid Id, string? Name) : IRequest<AreaResponse?>;

@@ -72,7 +72,7 @@ public static class AuthEndpoint
 
             await httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-            return Results.Redirect(returnUrl ?? "/");
+            return Results.Redirect(Uri.IsWellFormedUriString(returnUrl, UriKind.Relative) ? returnUrl : "/");
         });
 
         group.MapPost("/logout", async (HttpContext httpContext) =>

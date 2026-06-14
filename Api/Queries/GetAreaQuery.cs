@@ -3,4 +3,4 @@ using MediatR;
 
 namespace DroneMesh3D.Api.Queries;
 
-public record GetAreaQuery(Guid Id, Guid UserId) : IRequest<AreaResponse?>;
+public record GetAreaQuery(Guid Id) : IRequest<AreaResponse?>;

@@ -1,5 +1,6 @@
 using DroneMesh3D.Api.Commands;
 using DroneMesh3D.Api.DTOs;
+using DroneMesh3D.Api.Services;
 using DroneMesh3D.Core;
 using DroneMesh3D.Core.Entities;
 using DroneMesh3D.Core.Interfaces;
@@ -12,7 +13,8 @@ namespace DroneMesh3D.Api.Handlers;
 
 public sealed class CreateAreaCommandHandler(
     IAreaValidator areaValidator,
-    IAreaRepository areaRepository)
+    IAreaRepository areaRepository,
+    ICurrentUserAccessor currentUser)
     : IRequestHandler<CreateAreaCommand, OneOf<AreaResponse, ValidationErrorResponse, ErrorResponse>>
 {
     public async Task<OneOf<AreaResponse, ValidationErrorResponse, ErrorResponse>> Handle(
@@ -60,7 +62,7 @@ public sealed class CreateAreaCommandHandler(
             CreatedAt = DateTimeOffset.UtcNow,
             Geometry = geometry,
             Name = name,
-            UserId = command.UserId
+            UserId = currentUser.UserId
         };
 
         await areaRepository.AddAsync(entity, ct);

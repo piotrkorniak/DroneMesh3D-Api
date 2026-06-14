@@ -5,5 +5,5 @@ using OneOf;
 
 namespace DroneMesh3D.Api.Queries;
 
-public sealed record ExportMissionFileQuery(Guid FlightPlanId, ExportFormat Format, Guid UserId)
+public sealed record ExportMissionFileQuery(Guid FlightPlanId, ExportFormat Format)
     : IRequest<OneOf<MissionFileResult, ValidationErrorResponse, ErrorResponse>>;

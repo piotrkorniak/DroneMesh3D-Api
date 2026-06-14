@@ -1,17 +1,19 @@
 using DroneMesh3D.Api.DTOs;
 using DroneMesh3D.Api.Queries;
+using DroneMesh3D.Api.Services;
 using DroneMesh3D.Core.Interfaces;
 using MediatR;
 
 namespace DroneMesh3D.Api.Handlers;
 
 public sealed class ListFlightPlansQueryHandler(
-    IFlightPlanRepository flightPlanRepository)
+    IFlightPlanRepository flightPlanRepository,
+    ICurrentUserAccessor currentUser)
     : IRequestHandler<ListFlightPlansQuery, List<FlightPlanResponse>>
 {
     public async Task<List<FlightPlanResponse>> Handle(ListFlightPlansQuery request, CancellationToken ct)
     {
-        var entities = await flightPlanRepository.ListAsync(request.AreaId, request.UserId, request.Limit, request.Offset, ct);
+        var entities = await flightPlanRepository.ListAsync(request.AreaId, currentUser.UserId, request.Limit, request.Offset, ct);
 
         return entities.Select(entity =>
         {

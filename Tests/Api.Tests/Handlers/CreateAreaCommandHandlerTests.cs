@@ -1,5 +1,6 @@
 using DroneMesh3D.Api.Commands;
 using DroneMesh3D.Api.Handlers;
+using DroneMesh3D.Api.Services;
 using DroneMesh3D.Core.Entities;
 using DroneMesh3D.Core.Interfaces;
 using DroneMesh3D.Core.Models;
@@ -22,19 +23,21 @@ public sealed class CreateAreaCommandHandlerTests
     ];
 
     private readonly IAreaRepository _repository = Substitute.For<IAreaRepository>();
+    private readonly ICurrentUserAccessor _currentUser = Substitute.For<ICurrentUserAccessor>();
     private readonly CreateAreaCommandHandler _sut;
     private readonly IAreaValidator _validator = Substitute.For<IAreaValidator>();
 
     public CreateAreaCommandHandlerTests()
     {
-        _sut = new CreateAreaCommandHandler(_validator, _repository);
+        _currentUser.UserId.Returns(TestUserId);
+        _sut = new CreateAreaCommandHandler(_validator, _repository, _currentUser);
     }
 
     [Fact]
     public async Task Handle_ValidCommand_ReturnsAreaResponse()
     {
         // Arrange
-        var command = new CreateAreaCommand(GeoJsonType.Polygon, [ValidRing], TestUserId);
+        var command = new CreateAreaCommand(GeoJsonType.Polygon, [ValidRing]);
 
         _validator.Validate(Arg.Any<double[][]>())
             .Returns(new ValidationResult(true, []));
@@ -66,7 +69,7 @@ public sealed class CreateAreaCommandHandlerTests
             [21.0005, 52.0013],
             [21.0005, 52.0005]
         ];
-        var command = new CreateAreaCommand(GeoJsonType.Polygon, [ValidRing, secondRing], TestUserId);
+        var command = new CreateAreaCommand(GeoJsonType.Polygon, [ValidRing, secondRing]);
 
         // Act
         var result = await _sut.Handle(command, CancellationToken.None);
@@ -81,7 +84,7 @@ public sealed class CreateAreaCommandHandlerTests
     public async Task Handle_FailedGeometryValidation_ReturnsValidationErrorResponse()
     {
         // Arrange
-        var command = new CreateAreaCommand(GeoJsonType.Polygon, [ValidRing], TestUserId);
+        var command = new CreateAreaCommand(GeoJsonType.Polygon, [ValidRing]);
         var errors = new List<string>
         {
             "Polygon must not self-intersect.",

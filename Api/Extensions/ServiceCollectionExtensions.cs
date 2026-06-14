@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using DroneMesh3D.Api.Behaviors;
 using DroneMesh3D.Api.Middleware;
+using DroneMesh3D.Api.Services;
 using DroneMesh3D.Core.Data;
 using DroneMesh3D.Core.FlightPath;
 using DroneMesh3D.Core.Interfaces;
@@ -44,6 +45,9 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserAccessor, HttpCurrentUserAccessor>();
+
         services.AddScoped<IAreaValidator, AreaValidator>();
         services.AddScoped<IAreaRepository, AreaRepository>();
         services.AddScoped<IFlightPlanRepository, FlightPlanRepository>();
@@ -87,7 +91,6 @@ public static class ServiceCollectionExtensions
             {
                 options.ClientId = configuration["Authentication:Google:ClientId"] ?? "";
                 options.ClientSecret = configuration["Authentication:Google:ClientSecret"] ?? "";
-                options.SaveTokens = true;
             });
 
         services.AddAuthorization();

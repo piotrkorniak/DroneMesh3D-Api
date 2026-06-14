@@ -17,11 +17,11 @@ public sealed class FlightPlanRepository(AppDbContext context) : IFlightPlanRepo
         => await context.FlightPlans
             .AsNoTracking()
             .Include(e => e.Area)
-            .FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId, ct);
+            .FirstOrDefaultAsync(e => e.Id == id && e.Area.UserId == userId, ct);
 
     public async Task<List<FlightPlanEntity>> ListAsync(Guid? areaId, Guid userId, int limit, int offset, CancellationToken ct = default)
     {
-        var query = context.FlightPlans.AsNoTracking().Where(e => e.UserId == userId);
+        var query = context.FlightPlans.AsNoTracking().Where(e => e.Area.UserId == userId);
 
         if (areaId.HasValue)
         {

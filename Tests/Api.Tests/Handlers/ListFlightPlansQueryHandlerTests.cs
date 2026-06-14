@@ -1,5 +1,6 @@
 using DroneMesh3D.Api.Handlers;
 using DroneMesh3D.Api.Queries;
+using DroneMesh3D.Api.Services;
 using DroneMesh3D.Core.Entities;
 using DroneMesh3D.Core.FlightPath;
 using DroneMesh3D.Core.Interfaces;
@@ -11,18 +12,20 @@ public sealed class ListFlightPlansQueryHandlerTests
 {
     private static readonly Guid TestUserId = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private readonly IFlightPlanRepository _repository = Substitute.For<IFlightPlanRepository>();
+    private readonly ICurrentUserAccessor _currentUser = Substitute.For<ICurrentUserAccessor>();
     private readonly ListFlightPlansQueryHandler _sut;
 
     public ListFlightPlansQueryHandlerTests()
     {
-        _sut = new ListFlightPlansQueryHandler(_repository);
+        _currentUser.UserId.Returns(TestUserId);
+        _sut = new ListFlightPlansQueryHandler(_repository, _currentUser);
     }
 
     [Fact]
     public async Task Handle_ReturnsEmptyList_WhenNoFlightPlansExist()
     {
         // Arrange
-        var query = new ListFlightPlansQuery(null, TestUserId);
+        var query = new ListFlightPlansQuery(null);
         _repository.ListAsync(null, TestUserId, 100, 0, Arg.Any<CancellationToken>())
             .Returns([]);
 
@@ -60,7 +63,7 @@ public sealed class ListFlightPlansQueryHandlerTests
             CreatedAt = createdAt
         };
 
-        var query = new ListFlightPlansQuery(areaId, TestUserId, 50, 10);
+        var query = new ListFlightPlansQuery(areaId, 50, 10);
         _repository.ListAsync(areaId, TestUserId, 50, 10, Arg.Any<CancellationToken>())
             .Returns([entity]);
 
@@ -86,7 +89,7 @@ public sealed class ListFlightPlansQueryHandlerTests
     {
         // Arrange
         var areaId = Guid.NewGuid();
-        var query = new ListFlightPlansQuery(areaId, TestUserId, 25, 5);
+        var query = new ListFlightPlansQuery(areaId, 25, 5);
         _repository.ListAsync(areaId, TestUserId, 25, 5, Arg.Any<CancellationToken>())
             .Returns([]);
 

@@ -8,7 +8,6 @@ namespace DroneMesh3D.Api.Commands;
 public record CalculateFlightPathCommand(
     Guid AreaId,
     FlightMode Mode,
-    Guid UserId,
     GridModeParameters? Grid,
     PoiModeParameters? Poi,
     OrbitShape? OrbitShape = null,

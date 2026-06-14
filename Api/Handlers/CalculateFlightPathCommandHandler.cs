@@ -1,5 +1,6 @@
 using DroneMesh3D.Api.Commands;
 using DroneMesh3D.Api.DTOs;
+using DroneMesh3D.Api.Services;
 using DroneMesh3D.Core.Entities;
 using DroneMesh3D.Core.FlightPath;
 using DroneMesh3D.Core.Interfaces;
@@ -13,6 +14,7 @@ public sealed class CalculateFlightPathCommandHandler(
     IAreaRepository areaRepository,
     IFlightPathCalculator flightPathCalculator,
     IFlightPlanRepository flightPlanRepository,
+    ICurrentUserAccessor currentUser,
     ILogger<CalculateFlightPathCommandHandler> logger)
     : IRequestHandler<CalculateFlightPathCommand, OneOf<FlightPlanResponse, ValidationErrorResponse, ErrorResponse>>
 {
@@ -21,7 +23,7 @@ public sealed class CalculateFlightPathCommandHandler(
         CancellationToken ct)
     {
         // 1. Load AreaEntity by ID
-        var area = await areaRepository.GetByIdAsync(command.AreaId, command.UserId, ct);
+        var area = await areaRepository.GetByIdAsync(command.AreaId, currentUser.UserId, ct);
         if (area is null)
         {
             return new ErrorResponse($"Area with ID '{command.AreaId}' was not found.");
@@ -50,8 +52,7 @@ public sealed class CalculateFlightPathCommandHandler(
             EstimatedFlightTimeS = result.Statistics.EstimatedFlightTimeS,
             PhotoCount = result.Statistics.PhotoCount,
             CoveredAreaM2 = result.Statistics.CoveredAreaM2,
-            CreatedAt = DateTimeOffset.UtcNow,
-            UserId = command.UserId
+            CreatedAt = DateTimeOffset.UtcNow
         };
 
         // 4. Persist to database
