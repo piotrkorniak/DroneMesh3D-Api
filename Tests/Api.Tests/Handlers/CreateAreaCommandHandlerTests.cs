@@ -1,5 +1,6 @@
 using DroneMesh3D.Api.Commands;
 using DroneMesh3D.Api.Handlers;
+using DroneMesh3D.Api.Services;
 using DroneMesh3D.Core.Entities;
 using DroneMesh3D.Core.Interfaces;
 using DroneMesh3D.Core.Models;
@@ -9,6 +10,8 @@ namespace DroneMesh3D.Api.Tests.Handlers;
 
 public sealed class CreateAreaCommandHandlerTests
 {
+    private static readonly Guid TestUserId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
     // A valid closed polygon ring
     private static readonly double[][] ValidRing =
     [
@@ -20,12 +23,14 @@ public sealed class CreateAreaCommandHandlerTests
     ];
 
     private readonly IAreaRepository _repository = Substitute.For<IAreaRepository>();
+    private readonly ICurrentUserAccessor _currentUser = Substitute.For<ICurrentUserAccessor>();
     private readonly CreateAreaCommandHandler _sut;
     private readonly IAreaValidator _validator = Substitute.For<IAreaValidator>();
 
     public CreateAreaCommandHandlerTests()
     {
-        _sut = new CreateAreaCommandHandler(_validator, _repository);
+        _currentUser.UserId.Returns(TestUserId);
+        _sut = new CreateAreaCommandHandler(_validator, _repository, _currentUser);
     }
 
     [Fact]

@@ -44,7 +44,6 @@ public abstract class IntegrationTestBase : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        // Clean all data before each test for full isolation
         using var scope = Factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         db.FlightPlans.RemoveRange(db.FlightPlans);

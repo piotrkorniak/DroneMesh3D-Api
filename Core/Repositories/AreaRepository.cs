@@ -13,12 +13,13 @@ public sealed class AreaRepository(AppDbContext context) : IAreaRepository
         await context.SaveChangesAsync(ct);
     }
 
-    public async Task<AreaEntity?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await context.Areas.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id, ct);
+    public async Task<AreaEntity?> GetByIdAsync(Guid id, Guid userId, CancellationToken ct = default)
+        => await context.Areas.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id && a.UserId == userId, ct);
 
-    public async Task<List<AreaEntity>> GetAllAsync(CancellationToken ct = default)
+    public async Task<List<AreaEntity>> GetAllAsync(Guid userId, CancellationToken ct = default)
         => await context.Areas
             .AsNoTracking()
+            .Where(a => a.UserId == userId)
             .OrderByDescending(a => a.CreatedAt)
             .ToListAsync(ct);
 

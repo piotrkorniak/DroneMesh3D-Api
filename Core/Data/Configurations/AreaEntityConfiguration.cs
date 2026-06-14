@@ -15,5 +15,10 @@ public sealed class AreaEntityConfiguration : IEntityTypeConfiguration<AreaEntit
         entity.HasIndex(e => e.Geometry).HasMethod("gist");
         entity.Property(e => e.Name).HasMaxLength(50);
         entity.Property(e => e.SequentialNumber).UseIdentityByDefaultColumn();
+
+        entity.HasOne(e => e.User)
+            .WithMany()
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -1,5 +1,6 @@
 using DroneMesh3D.Api.DTOs;
 using DroneMesh3D.Api.Queries;
+using DroneMesh3D.Api.Services;
 using DroneMesh3D.Core.Interfaces;
 using DroneMesh3D.Core.MissionExport;
 using MediatR;
@@ -10,6 +11,7 @@ namespace DroneMesh3D.Api.Handlers;
 public sealed class ExportMissionFileQueryHandler(
     IFlightPlanRepository flightPlanRepository,
     IMissionFileGeneratorFactory generatorFactory,
+    ICurrentUserAccessor currentUser,
     ILogger<ExportMissionFileQueryHandler> logger)
     : IRequestHandler<ExportMissionFileQuery, OneOf<MissionFileResult, ValidationErrorResponse, ErrorResponse>>
 {
@@ -18,7 +20,7 @@ public sealed class ExportMissionFileQueryHandler(
         CancellationToken ct)
     {
         // 1. Load FlightPlanEntity by ID
-        var entity = await flightPlanRepository.GetByIdAsync(query.FlightPlanId, ct);
+        var entity = await flightPlanRepository.GetByIdAsync(query.FlightPlanId, currentUser.UserId, ct);
         if (entity is null)
         {
             logger.LogError(

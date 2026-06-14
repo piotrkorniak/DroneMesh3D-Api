@@ -7,6 +7,7 @@ builder.Services
     .AddMediatrPipeline()
     .AddApplicationServices()
     .AddPersistence(builder.Configuration)
+    .AddGoogleAuthentication(builder.Configuration)
     .AddCorsPolicies(builder.Configuration);
 
 var app = builder.Build();

@@ -9,7 +9,7 @@ public static class AreasEndpoint
 {
     public static void MapAreasEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/areas").WithTags("Areas");
+        var group = app.MapGroup("/api/areas").WithTags("Areas").RequireAuthorization();
 
         group.MapGet("/", ListAreas)
             .Produces<List<AreaResponse>>();
@@ -32,18 +32,14 @@ public static class AreasEndpoint
             .ProducesProblem(StatusCodes.Status404NotFound);
     }
 
-    private static async Task<IResult> ListAreas(
-        IMediator mediator,
-        CancellationToken ct)
+    private static async Task<IResult> ListAreas(IMediator mediator, CancellationToken ct)
     {
         var result = await mediator.Send(new ListAreasQuery(), ct);
         return Results.Ok(result);
     }
 
     private static async Task<IResult> CreateArea(
-        CreateAreaRequest request,
-        IMediator mediator,
-        CancellationToken ct)
+        CreateAreaRequest request, IMediator mediator, CancellationToken ct)
     {
         if (!Enum.IsDefined(request.Type))
         {
@@ -56,34 +52,23 @@ public static class AreasEndpoint
         return result.Match(
             success => Results.Created($"/api/areas/{success.Id}", success),
             validationFailure => Results.UnprocessableEntity(validationFailure),
-            badRequest => Results.BadRequest(badRequest)
-        );
+            badRequest => Results.BadRequest(badRequest));
     }
 
-    private static async Task<IResult> GetArea(
-        Guid id,
-        IMediator mediator,
-        CancellationToken ct)
+    private static async Task<IResult> GetArea(Guid id, IMediator mediator, CancellationToken ct)
     {
-        var query = new GetAreaQuery(id);
-        var result = await mediator.Send(query, ct);
+        var result = await mediator.Send(new GetAreaQuery(id), ct);
         return result is not null ? Results.Ok(result) : Results.NotFound();
     }
 
-    private static async Task<IResult> DeleteArea(
-        Guid id,
-        IMediator mediator,
-        CancellationToken ct)
+    private static async Task<IResult> DeleteArea(Guid id, IMediator mediator, CancellationToken ct)
     {
         var result = await mediator.Send(new DeleteAreaCommand(id), ct);
         return result ? Results.NoContent() : Results.NotFound();
     }
 
     private static async Task<IResult> UpdateAreaName(
-        Guid id,
-        UpdateAreaNameRequest request,
-        IMediator mediator,
-        CancellationToken ct)
+        Guid id, UpdateAreaNameRequest request, IMediator mediator, CancellationToken ct)
     {
         var result = await mediator.Send(new UpdateAreaNameCommand(id, request.Name), ct);
         return result is not null ? Results.Ok(result) : Results.NotFound();

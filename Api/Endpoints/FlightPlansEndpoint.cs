@@ -11,7 +11,7 @@ public static class FlightPlansEndpoint
 {
     public static void MapFlightPlansEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/flight-plans").WithTags("FlightPlans");
+        var group = app.MapGroup("/api/flight-plans").WithTags("FlightPlans").RequireAuthorization();
 
         group.MapGet("/", ListFlightPlans)
             .Produces<List<FlightPlanResponse>>()
@@ -41,73 +41,46 @@ public static class FlightPlansEndpoint
     }
 
     private static async Task<IResult> ListFlightPlans(
-        string? areaId,
-        int? limit,
-        int? offset,
-        ISender sender,
-        CancellationToken ct)
+        string? areaId, int? limit, int? offset, ISender sender, CancellationToken ct)
     {
         Guid? parsedAreaId = null;
         if (areaId is not null)
         {
             if (!Guid.TryParse(areaId, out var guid))
             {
-                return Results.UnprocessableEntity(new ValidationErrorResponse(
-                    ["areaId must be a valid GUID."]));
+                return Results.UnprocessableEntity(new ValidationErrorResponse(["areaId must be a valid GUID."]));
             }
 
             parsedAreaId = guid;
         }
 
-        var clampedLimit = Math.Clamp(limit ?? 100, 1, 100);
-        var clampedOffset = Math.Max(offset ?? 0, 0);
-
-        var query = new ListFlightPlansQuery(parsedAreaId, clampedLimit, clampedOffset);
+        var query = new ListFlightPlansQuery(parsedAreaId, Math.Clamp(limit ?? 100, 1, 100), Math.Max(offset ?? 0, 0));
         var result = await sender.Send(query, ct);
-
         return Results.Ok(result);
     }
 
     private static async Task<IResult> CalculateFlightPath(
-        CalculateFlightPathRequest request,
-        IMediator mediator,
-        CancellationToken ct)
+        CalculateFlightPathRequest request, IMediator mediator, CancellationToken ct)
     {
         var gridParameters = request.Grid is not null
             ? new GridModeParameters(
                 request.Grid.AltitudeM,
                 new CameraParameters(
-                    request.Grid.Camera.SensorWidthMm,
-                    request.Grid.Camera.FocalLengthMm,
-                    request.Grid.Camera.ImageWidthPx,
-                    request.Grid.Camera.ImageHeightPx),
-                request.Grid.FrontOverlapPercent,
-                request.Grid.SideOverlapPercent,
-                request.Grid.HeadingDegrees)
+                    request.Grid.Camera.SensorWidthMm, request.Grid.Camera.FocalLengthMm,
+                    request.Grid.Camera.ImageWidthPx, request.Grid.Camera.ImageHeightPx),
+                request.Grid.FrontOverlapPercent, request.Grid.SideOverlapPercent, request.Grid.HeadingDegrees)
             : null;
 
         var poiParameters = request.Poi is not null
             ? new PoiModeParameters(
-                request.Poi.CenterLatitude,
-                request.Poi.CenterLongitude,
-                request.Poi.RadiusM,
-                request.Poi.AltitudeM,
-                request.Poi.GimbalPitchDegrees,
-                request.Poi.PhotoCount,
-                request.Poi.OverlapPercent,
-                request.Poi.CameraHorizontalFovDegrees,
-                request.Poi.StructureHeightM)
+                request.Poi.CenterLatitude, request.Poi.CenterLongitude, request.Poi.RadiusM,
+                request.Poi.AltitudeM, request.Poi.GimbalPitchDegrees, request.Poi.PhotoCount,
+                request.Poi.OverlapPercent, request.Poi.CameraHorizontalFovDegrees, request.Poi.StructureHeightM)
             : null;
 
-        OrbitShape? orbitShape = request.Poi?.OrbitShape;
-
         var command = new CalculateFlightPathCommand(
-            request.AreaId,
-            request.Mode,
-            gridParameters,
-            poiParameters,
-            orbitShape,
-            request.Poi?.AreaCoordinates);
+            request.AreaId, request.Mode, gridParameters, poiParameters,
+            request.Poi?.OrbitShape, request.Poi?.AreaCoordinates);
 
         var result = await mediator.Send(command, ct);
 
@@ -116,57 +89,36 @@ public static class FlightPlansEndpoint
             validationError => Results.UnprocessableEntity(validationError),
             error => error.Message.Contains("not found", StringComparison.OrdinalIgnoreCase)
                 ? Results.NotFound()
-                : Results.Problem(statusCode: 500, detail: error.Message)
-        );
+                : Results.Problem(statusCode: 500, detail: error.Message));
     }
 
-    private static async Task<IResult> GetFlightPlan(
-        Guid id,
-        IMediator mediator,
-        CancellationToken ct)
+    private static async Task<IResult> GetFlightPlan(Guid id, IMediator mediator, CancellationToken ct)
     {
-        var query = new GetFlightPlanQuery(id);
-        var result = await mediator.Send(query, ct);
+        var result = await mediator.Send(new GetFlightPlanQuery(id), ct);
         return result is not null ? Results.Ok(result) : Results.NotFound();
     }
 
     private static async Task<IResult> ExportMissionFile(
-        Guid id,
-        ExportFormat? format,
-        IMediator mediator,
-        CancellationToken ct)
+        Guid id, ExportFormat? format, IMediator mediator, CancellationToken ct)
     {
         if (format is null)
         {
-            var errors = new List<string>
-            {
-                "Format must be one of: LitchiCsv, Kml, DjiWpml"
-            };
-            return Results.UnprocessableEntity(new ValidationErrorResponse(errors));
+            return Results.UnprocessableEntity(new ValidationErrorResponse(["Format must be one of: LitchiCsv, Kml, DjiWpml"]));
         }
 
-        var query = new ExportMissionFileQuery(id, format.Value);
-        var result = await mediator.Send(query, ct);
+        var result = await mediator.Send(new ExportMissionFileQuery(id, format.Value), ct);
 
         return result.Match(
-            missionFile => Results.File(
-                missionFile.Content,
-                missionFile.ContentType,
-                missionFile.FileName),
+            missionFile => Results.File(missionFile.Content, missionFile.ContentType, missionFile.FileName),
             validationError => Results.UnprocessableEntity(validationError),
             error => error.Message.Contains("not found", StringComparison.OrdinalIgnoreCase)
                 ? Results.NotFound()
-                : Results.Problem(statusCode: 500, detail: error.Message)
-        );
+                : Results.Problem(statusCode: 500, detail: error.Message));
     }
 
-    private static async Task<IResult> DeleteFlightPlan(
-        Guid id,
-        ISender sender,
-        CancellationToken ct)
+    private static async Task<IResult> DeleteFlightPlan(Guid id, ISender sender, CancellationToken ct)
     {
-        var command = new DeleteFlightPlanCommand(id);
-        var deleted = await sender.Send(command, ct);
+        var deleted = await sender.Send(new DeleteFlightPlanCommand(id), ct);
         return deleted ? Results.NoContent() : Results.NotFound();
     }
 }
