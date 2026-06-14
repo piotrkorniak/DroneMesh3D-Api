@@ -8,6 +8,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<UserEntity> Users => Set<UserEntity>();
     public DbSet<AreaEntity> Areas => Set<AreaEntity>();
     public DbSet<FlightPlanEntity> FlightPlans => Set<FlightPlanEntity>();
+    public DbSet<PhotoBatchEntity> PhotoBatches => Set<PhotoBatchEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

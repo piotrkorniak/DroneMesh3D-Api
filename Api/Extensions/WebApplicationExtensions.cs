@@ -28,6 +28,7 @@ public static class WebApplicationExtensions
         app.MapAuthEndpoints();
         app.MapAreasEndpoints();
         app.MapFlightPlansEndpoints();
+        app.MapPhotosEndpoints();
 
         return app;
     }

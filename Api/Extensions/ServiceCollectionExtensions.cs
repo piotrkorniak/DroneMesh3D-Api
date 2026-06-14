@@ -7,6 +7,7 @@ using DroneMesh3D.Core.FlightPath;
 using DroneMesh3D.Core.Interfaces;
 using DroneMesh3D.Core.MissionExport;
 using DroneMesh3D.Core.Repositories;
+using DroneMesh3D.Core.Services;
 using DroneMesh3D.Core.Validation;
 using FluentValidation;
 using MediatR;
@@ -47,6 +48,8 @@ public static class ServiceCollectionExtensions
     {
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserAccessor, HttpCurrentUserAccessor>();
+
+        services.AddSingleton<IObjectStorageService, MinioStorageService>();
 
         services.AddScoped<IAreaValidator, AreaValidator>();
         services.AddScoped<IAreaRepository, AreaRepository>();
