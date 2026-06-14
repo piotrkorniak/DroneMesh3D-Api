@@ -91,6 +91,14 @@ public sealed class DroneMesh3DApiFactory : WebApplicationFactory<Program>, IAsy
                 o.DefaultAuthenticateScheme = "Test";
                 o.DefaultChallengeScheme = "Test";
             });
+
+            services.PostConfigure<Microsoft.AspNetCore.Authentication.Google.GoogleOptions>(
+                Microsoft.AspNetCore.Authentication.Google.GoogleDefaults.AuthenticationScheme,
+                o =>
+                {
+                    o.ClientId = "test-client-id";
+                    o.ClientSecret = "test-client-secret";
+                });
         });
 
         builder.ConfigureLogging(logging =>
