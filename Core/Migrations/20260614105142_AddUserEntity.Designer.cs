@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DroneMesh3D.Core.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260614094335_AddUserAndAuth")]
-    partial class AddUserAndAuth
+    [Migration("20260614105142_AddUserEntity")]
+    partial class AddUserEntity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -98,14 +98,9 @@ namespace DroneMesh3D.Core.Migrations
                     b.Property<double>("TotalDistanceM")
                         .HasColumnType("double precision");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AreaId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("FlightPlans");
                 });
@@ -167,12 +162,6 @@ namespace DroneMesh3D.Core.Migrations
                     b.HasOne("DroneMesh3D.Core.Entities.AreaEntity", "Area")
                         .WithMany()
                         .HasForeignKey("AreaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DroneMesh3D.Core.Entities.UserEntity", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -287,8 +276,6 @@ namespace DroneMesh3D.Core.Migrations
                     b.Navigation("GridParameters");
 
                     b.Navigation("PoiParameters");
-
-                    b.Navigation("User");
 
                     b.Navigation("Waypoints");
                 });

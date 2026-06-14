@@ -6,18 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DroneMesh3D.Core.Migrations;
 
 /// <inheritdoc />
-public partial class AddUserAndAuth : Migration
+public partial class AddUserEntity : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
     {
-        migrationBuilder.AddColumn<Guid>(
-            name: "UserId",
-            table: "FlightPlans",
-            type: "uuid",
-            nullable: false,
-            defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
-
         migrationBuilder.AddColumn<Guid>(
             name: "UserId",
             table: "Areas",
@@ -40,11 +33,6 @@ public partial class AddUserAndAuth : Migration
             {
                 table.PrimaryKey("PK_Users", x => x.Id);
             });
-
-        migrationBuilder.CreateIndex(
-            name: "IX_FlightPlans_UserId",
-            table: "FlightPlans",
-            column: "UserId");
 
         migrationBuilder.CreateIndex(
             name: "IX_Areas_UserId",
@@ -70,14 +58,6 @@ public partial class AddUserAndAuth : Migration
             principalTable: "Users",
             principalColumn: "Id",
             onDelete: ReferentialAction.Cascade);
-
-        migrationBuilder.AddForeignKey(
-            name: "FK_FlightPlans_Users_UserId",
-            table: "FlightPlans",
-            column: "UserId",
-            principalTable: "Users",
-            principalColumn: "Id",
-            onDelete: ReferentialAction.Cascade);
     }
 
     /// <inheritdoc />
@@ -87,24 +67,12 @@ public partial class AddUserAndAuth : Migration
             name: "FK_Areas_Users_UserId",
             table: "Areas");
 
-        migrationBuilder.DropForeignKey(
-            name: "FK_FlightPlans_Users_UserId",
-            table: "FlightPlans");
-
         migrationBuilder.DropTable(
             name: "Users");
 
         migrationBuilder.DropIndex(
-            name: "IX_FlightPlans_UserId",
-            table: "FlightPlans");
-
-        migrationBuilder.DropIndex(
             name: "IX_Areas_UserId",
             table: "Areas");
-
-        migrationBuilder.DropColumn(
-            name: "UserId",
-            table: "FlightPlans");
 
         migrationBuilder.DropColumn(
             name: "UserId",
