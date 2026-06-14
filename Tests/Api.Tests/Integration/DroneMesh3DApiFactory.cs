@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -65,7 +66,11 @@ public sealed class DroneMesh3DApiFactory : WebApplicationFactory<Program>, IAsy
             var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__Default")
                                    ?? "Host=localhost;Database=dronemesh3d_test;Username=postgres;Password=YourStr0ngP@ssword";
 
-            services.AddDbContext<AppDbContext>(options => { options.UseNpgsql(connectionString, x => x.UseNetTopologySuite()); });
+            services.AddDbContext<AppDbContext>(options =>
+            {
+                options.UseNpgsql(connectionString, x => x.UseNetTopologySuite());
+                options.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+            });
 
             // Replace authentication with test scheme
             services.AddAuthentication("Test")
